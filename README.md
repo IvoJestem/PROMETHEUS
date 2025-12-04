@@ -1,8 +1,8 @@
-# 🌳 Analizator Danych: Las Losowy i Reguły Decyzyjne
+# Analizator Danych: Las Losowy i Reguły Decyzyjne
 
 Interaktywna aplikacja webowa stworzona w bibliotece **React**, służąca do eksploracji danych (Data Mining). Aplikacja działa w całości po stronie przeglądarki (client-side) i umożliwia generowanie reguł decyzyjnych z plików CSV przy użyciu algorytmów uczenia maszynowego.
 
-## 🚀 Główne Funkcje
+## Główne Funkcje
 
 1.  **Wczytywanie Danych**: Obsługa plików `.csv` z automatycznym wykrywaniem nagłówków.
 2.  **Analiza Spójności**: Wykrywanie i automatyczna naprawa sprzeczności w danych treningowych (np. te same warunki, różne decyzje).
@@ -12,7 +12,7 @@ Interaktywna aplikacja webowa stworzona w bibliotece **React**, służąca do ek
 6.  **Ewaluacja Klasyfikatora**: Obliczanie dokładności (Accuracy) i pokrycia (Coverage) modelu na zbiorze danych.
 7.  **Interfejs**: Obsługa trybu ciemnego/jasnego (Dark/Light Mode) oraz konsola logów.
 
-## 🛠️ Wymagania i Instalacja
+## Wymagania i Instalacja
 
 Projekt nie wymaga backendu. Jest to pojedynczy komponent React.
 
@@ -34,7 +34,7 @@ Projekt nie wymaga backendu. Jest to pojedynczy komponent React.
     npm start
     ```
 
-## 📊 Format Danych (CSV)
+## Format Danych (CSV)
 
 Aplikacja oczekuje prostego pliku CSV, gdzie pierwszy wiersz to nagłówki. Ostatnia kolumna jest domyślnie traktowana jako **atrybut decyzyjny** (klasa), a pozostałe jako atrybuty warunkowe.
 
@@ -45,3 +45,21 @@ Słonecznie,Gorąco,Słaby,Nie
 Słonecznie,Gorąco,Mocny,Nie
 Pochmurno,Gorąco,Słaby,Tak
 Deszcz,Zimno,Słaby,Tak
+
+```mermaid
+graph TD
+    A[Dane wejściowe CSV] -->|Budowa Lasu| B(Las Losowy - 10 Drzew)
+    B -->|Ekstrakcja| C[Zbiór Wszystkich Surowych Reguł]
+    
+    subgraph Proces Optymalizacji
+    C -->|Dla każdego wiersza danych| D{Szukaj pasujących reguł}
+    D -->|Znaleziono wiele reguł| E[Sortowanie]
+    E -->|Kryteria: 1. Max Wsparcie, 2. Min Długość| F[Wybierz 1 najlepszą regułę]
+    end
+    
+    F --> G[Zoptymalizowany Zbiór Reguł]
+    G --> H((Gotowy Klasyfikator))
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bfb,stroke:#333,stroke-width:2px
