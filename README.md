@@ -51,17 +51,17 @@ Deszcz,Zimno,Słaby,Tak
 graph TD
     A[Dane wejściowe CSV] -->|Budowa Lasu| B(Las Losowy - 10 Drzew)
     B -->|Ekstrakcja| C[Zbiór Wszystkich Surowych Reguł]
-    
+
     subgraph Proces Optymalizacji
-    C -->|Dla każdego wiersza danych| D{Szukaj pasujących reguł}
-    D -->|Znaleziono wiele reguł| E[Sortowanie]
-    E -->|Kryteria: 1. Max Wsparcie, 2. Min Długość| F[Wybierz 1 najlepszą regułę]
+        C -->|Dla każdego wiersza danych| D{Szukaj pasujących reguł}
+        D -->|Znaleziono wiele reguł| E[Sortowanie]
+        E -->|Kryteria: 1. Max Wsparcie,\n2. Min Długość| F[Wybierz 1 najlepszą regułę]
     end
-    
+
     F --> G[Zoptymalizowany Zbiór Reguł]
     G --> H((Gotowy Klasyfikator))
-    
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style H fill:#bbf,stroke:#333,stroke-width:2px
-    style F fill:#bfb,stroke:#333,stroke-width:2px
+
+    style A fill:#ff99cc,stroke:#333,stroke-width:2px
+    style F fill:#99ff99,stroke:#333,stroke-width:2px
+    style H fill:#99ccff,stroke:#333,stroke-width:2px
     ```
