@@ -1,0 +1,23 @@
+<svg width="200px" height="200px" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(10, 25)">
+        <path d="M0,25 C10,5 20,45 30,25 C40,5 50,45 60,25 C70,5 80,45 90,25"
+              fill="none"
+              stroke="#B0B0B0"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+
+        <path d="M5,25 L85,25"
+              fill="none"
+              stroke="#0056D2"
+              stroke-width="6"
+              stroke-linecap="round"/>
+        
+        <path d="M75,15 L85,25 L75,35"
+              fill="none"
+              stroke="#0056D2"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+    </g>
+</svg>
