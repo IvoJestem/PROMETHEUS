@@ -45,6 +45,7 @@ Słonecznie,Gorąco,Słaby,Nie
 Słonecznie,Gorąco,Mocny,Nie
 Pochmurno,Gorąco,Słaby,Tak
 Deszcz,Zimno,Słaby,Tak
+```
 
 ```mermaid
 graph TD
@@ -63,3 +64,4 @@ graph TD
     style A fill:#f9f,stroke:#333,stroke-width:2px
     style H fill:#bbf,stroke:#333,stroke-width:2px
     style F fill:#bfb,stroke:#333,stroke-width:2px
+    ```
