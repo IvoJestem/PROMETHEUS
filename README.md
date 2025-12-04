@@ -1,16 +1,47 @@
-# React + Vite
+# 🌳 Analizator Danych: Las Losowy i Reguły Decyzyjne
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interaktywna aplikacja webowa stworzona w bibliotece **React**, służąca do eksploracji danych (Data Mining). Aplikacja działa w całości po stronie przeglądarki (client-side) i umożliwia generowanie reguł decyzyjnych z plików CSV przy użyciu algorytmów uczenia maszynowego.
 
-Currently, two official plugins are available:
+## 🚀 Główne Funkcje
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1.  **Wczytywanie Danych**: Obsługa plików `.csv` z automatycznym wykrywaniem nagłówków.
+2.  **Analiza Spójności**: Wykrywanie i automatyczna naprawa sprzeczności w danych treningowych (np. te same warunki, różne decyzje).
+3.  **Algorytm ID3**: Budowanie drzew decyzyjnych w oparciu o Entropię Shannona i Zysk Informacyjny (Information Gain).
+4.  **Las Losowy (Random Forest)**: Generowanie zespołu 10 drzew na podstawie losowych podzbiorów danych (metoda Bootstrap).
+5.  **Ekstrakcja i Optymalizacja Reguł**: Przekształcanie drzew na reguły `JEŻELI... TO...` oraz wybór najlepszych reguł na podstawie ich wsparcia (support).
+6.  **Ewaluacja Klasyfikatora**: Obliczanie dokładności (Accuracy) i pokrycia (Coverage) modelu na zbiorze danych.
+7.  **Interfejs**: Obsługa trybu ciemnego/jasnego (Dark/Light Mode) oraz konsola logów.
 
-## React Compiler
+## 🛠️ Wymagania i Instalacja
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Projekt nie wymaga backendu. Jest to pojedynczy komponent React.
 
-## Expanding the ESLint configuration
+### Wymagania wstępne
+* Node.js oraz npm.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Jak uruchomić?
+
+1.  Stwórz nową aplikację React (jeśli jeszcze jej nie masz):
+    ```bash
+    npx create-react-app decision-tree-app
+    cd decision-tree-app
+    ```
+
+2.  Zastąp zawartość pliku `src/App.js` kodem aplikacji.
+
+3.  Uruchom projekt:
+    ```bash
+    npm start
+    ```
+
+## 📊 Format Danych (CSV)
+
+Aplikacja oczekuje prostego pliku CSV, gdzie pierwszy wiersz to nagłówki. Ostatnia kolumna jest domyślnie traktowana jako **atrybut decyzyjny** (klasa), a pozostałe jako atrybuty warunkowe.
+
+**Przykład pliku `dane.csv`:**
+```csv
+Pogoda,Temperatura,Wiatr,Grać
+Słonecznie,Gorąco,Słaby,Nie
+Słonecznie,Gorąco,Mocny,Nie
+Pochmurno,Gorąco,Słaby,Tak
+Deszcz,Zimno,Słaby,Tak
