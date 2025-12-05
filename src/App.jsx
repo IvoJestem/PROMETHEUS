@@ -217,7 +217,8 @@ export default function DecisionTableApp() {
         
         setAllData(parsed);
         setColumns(headers);
-        setSelectedTarget(headers[headers.length - 1]);
+        const targetAttr = headers[headers.length - 1];
+        setSelectedTarget(targetAttr);
         
         // Reset stanów, ale BEZ czyszczenia logów pliku (nadpisujemy je)
         setForestRules([]); setOptimizedRules([]); setTreeStats([]);
@@ -225,7 +226,15 @@ export default function DecisionTableApp() {
         setProcessLogs(""); // Czyścimy stare procesy
         
         setFileLogs(""); // Reset logów pliku przed nowym wpisem
-        logFile(`📂 Wczytano plik: ${file.name} (${parsed.length} wierszy)`);
+        logFile(`📂 Wczytano plik: ${file.name}`);
+
+        // --- STATYSTYKI PODSTAWOWE (ZMODYFIKOWANE) ---
+        // Zamiast listy klas, pokazujemy nazwę kolumny decyzyjnej
+        logFile(`\n📊 Statystyki Podstawowe:`);
+        logFile(`   Liczba wierszy: ${parsed.length}`);
+        logFile(`   Liczba kolumn: ${headers.length}`);
+        logFile(`   Klasa decyzyjna: ${targetAttr}`);
+        // -----------------
         
         checkConsistency(parsed, headers[headers.length - 1], headers);
 

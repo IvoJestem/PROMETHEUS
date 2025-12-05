@@ -1,67 +1,80 @@
-# Analizator Danych: Las Losowy i Reguły Decyzyjne
+# 🌲 Analizator Danych - Las Losowy (Random Forest Explorer)
 
-Interaktywna aplikacja webowa stworzona w bibliotece **React**, służąca do eksploracji danych (Data Mining). Aplikacja działa w całości po stronie przeglądarki (client-side) i umożliwia generowanie reguł decyzyjnych z plików CSV przy użyciu algorytmów uczenia maszynowego.
+Aplikacja webowa typu SPA (Single Page Application) stworzona w bibliotece **React**, służąca do analizy danych, ekstrakcji reguł decyzyjnych oraz walidacji modeli klasyfikacyjnych w oparciu o algorytm **Lasu Losowego (Random Forest)**.
 
-## Główne Funkcje
+Całość obliczeń (budowanie drzew, obliczanie entropii, walidacja) odbywa się **w pełni po stronie klienta (w przeglądarce)**, bez konieczności użycia backendu.
 
-1.  **Wczytywanie Danych**: Obsługa plików `.csv` z automatycznym wykrywaniem nagłówków.
-2.  **Analiza Spójności**: Wykrywanie i automatyczna naprawa sprzeczności w danych treningowych (np. te same warunki, różne decyzje).
-3.  **Algorytm ID3**: Budowanie drzew decyzyjnych w oparciu o Entropię Shannona i Zysk Informacyjny (Information Gain).
-4.  **Las Losowy (Random Forest)**: Generowanie zespołu 10 drzew na podstawie losowych podzbiorów danych (metoda Bootstrap).
-5.  **Ekstrakcja i Optymalizacja Reguł**: Przekształcanie drzew na reguły `JEŻELI... TO...` oraz wybór najlepszych reguł na podstawie ich wsparcia (support).
-6.  **Ewaluacja Klasyfikatora**: Obliczanie dokładności (Accuracy) i pokrycia (Coverage) modelu na zbiorze danych.
-7.  **Interfejs**: Obsługa trybu ciemnego/jasnego (Dark/Light Mode) oraz konsola logów.
+## 🚀 Funkcjonalności
 
-## Wymagania i Instalacja
+### 1. Przetwarzanie Danych
+* **Import CSV:** Obsługa plików tekstowych w formacie CSV.
+* **Analiza Spójności:** Automatyczne wykrywanie duplikatów oraz **konfliktów decyzyjnych** (sytuacji, gdzie te same atrybuty warunkowe prowadzą do różnych decyzji).
+* **Statystyki Podstawowe:** Liczba wierszy, kolumn, identyfikacja klasy decyzyjnej.
 
-Projekt nie wymaga backendu. Jest to pojedynczy komponent React.
+### 2. Generowanie Reguł (Analiza)
+* **Las Losowy:** Budowa 10 niezależnych drzew decyzyjnych na podstawie losowych próbek danych.
+* **Ekstrakcja Reguł:** Przekształcanie struktur drzewiastych na zbiór reguł `JEŻELI ... TO ...`.
+* **Statystyki Szczegółowe:**
+    * Analiza długości reguł (L).
+    * Analiza wsparcia reguł (S - Support).
+    * Wyliczanie średnich (względem liczby kolumn i wierszy), minimów i maksimów.
 
-### Wymagania wstępne
-* Node.js oraz npm.
+### 3. Walidacja Modelu (Train & Test)
+* **Podział Stratyfikowany:** Możliwość podziału zbioru na treningowy i testowy za pomocą suwaka (np. 70% / 30%).
+* **Trening:** Budowa modelu walidacyjnego na zbiorze treningowym.
+* **Ewaluacja (Test):** Klasyfikacja zbioru testowego i generowanie macierzy pomyłek.
+* **Metryki:**
+    * Accuracy (Dokładność).
+    * Macro Precision, Macro Recall, Macro F1.
 
-### Jak uruchomić?
+### 4. Interfejs Użytkownika
+* Tryb Jasny / Ciemny (Dark Mode).
+* Logi operacyjne w czasie rzeczywistym.
+* Tabela statystyk dla każdego drzewa w lesie.
 
-1.  Stwórz nową aplikację React (jeśli jeszcze jej nie masz):
+---
+
+## 🛠️ Wymagania i Instalacja
+
+Do uruchomienia projektu potrzebne jest środowisko **Node.js**.
+
+1.  **Sklonuj repozytorium lub pobierz pliki:**
     ```bash
-    npx create-react-app decision-tree-app
-    cd decision-tree-app
+    git clone [https://github.com/twoj-login/analizator-las-losowy.git](https://github.com/twoj-login/analizator-las-losowy.git)
+    cd analizator-las-losowy
     ```
 
-2.  Zastąp zawartość pliku `src/App.js` kodem aplikacji.
+2.  **Zainstaluj zależności:**
+    ```bash
+    npm install
+    # lub
+    yarn install
+    ```
+    *Uwaga: Projekt wymaga jedynie biblioteki `react` oraz `react-dom`.*
 
-3.  Uruchom projekt:
+3.  **Uruchom aplikację:**
     ```bash
     npm start
     ```
+    Aplikacja otworzy się pod adresem `http://localhost:3000`.
 
-## Format Danych (CSV)
+---
 
-Aplikacja oczekuje prostego pliku CSV, gdzie pierwszy wiersz to nagłówki. Ostatnia kolumna jest domyślnie traktowana jako **atrybut decyzyjny** (klasa), a pozostałe jako atrybuty warunkowe.
+## 📄 Format Danych Wejściowych
 
-**Przykład pliku `dane.csv`:**
+Aplikacja oczekuje plików **CSV** sformatowanych w następujący sposób:
+
+1.  **Nagłówki:** Pierwszy wiersz musi zawierać nazwy atrybutów.
+2.  **Atrybuty:** Dowolna liczba kolumn z danymi (liczby lub napisy).
+3.  **Klasa Decyzyjna:** Ostatnia kolumna jest zawsze traktowana jako **target** (klasa decyzyjna).
+4.  **Separator:** Przecinek (`,`).
+
+**Przykładowy plik `dane.csv`:**
 ```csv
-Pogoda,Temperatura,Wiatr,Grać
-Słonecznie,Gorąco,Słaby,Nie
-Słonecznie,Gorąco,Mocny,Nie
-Pochmurno,Gorąco,Słaby,Tak
-Deszcz,Zimno,Słaby,Tak
-```
-
-```mermaid
-graph TD
-    A[Dane wejściowe CSV] -->|Budowa Lasu| B(Las Losowy - 10 Drzew)
-    B -->|Ekstrakcja| C[Zbiór Wszystkich Surowych Reguł]
-
-    subgraph Proces Optymalizacji
-        C -->|Dla każdego wiersza danych| D{Szukaj pasujących reguł}
-        D -->|Znaleziono wiele reguł| E[Sortowanie]
-        E -->|Kryteria: 1. Max Wsparcie,\n2. Min Długość| F[Wybierz 1 najlepszą regułę]
-    end
-
-    F --> G[Zoptymalizowany Zbiór Reguł]
-    G --> H((Gotowy Klasyfikator))
-
-    style A fill:#ff99cc,stroke:#333,stroke-width:2px
-    style F fill:#99ff99,stroke:#333,stroke-width:2px
-    style H fill:#99ccff,stroke:#333,stroke-width:2px
-    ```
+Pogoda,Temperatura,Wilgotnosc,Wiatr,Decyzja
+Slonecznie,Goraco,Wysoka,Slaby,Nie
+Slonecznie,Goraco,Wysoka,Silny,Nie
+Pochmurno,Goraco,Wysoka,Slaby,Tak
+Deszcz,Umiarkowana,Wysoka,Slaby,Tak
+Deszcz,Zimna,Normalna,Slaby,Tak
+Deszcz,Zimna,Normalna,Silny,Nie
