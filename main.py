@@ -1,191 +1,206 @@
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, f1_score
-from sklearn.preprocessing import LabelEncoder
 import io
 import time
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-def extract_rules(tree_model, feature_names, class_names):
-    tree_ = tree_model.tree_
-    feature = tree_.feature
-    threshold = tree_.threshold
-    value = tree_.value
-    children_left = tree_.children_left
-    children_right = tree_.children_right
-    rules = []
-
-    def recurse(node, current_conditions):
-        if children_left[node] == children_right[node]: 
-            class_idx = np.argmax(value[node])
-            decision = str(class_names[class_idx])
-            rules.append({
-                "conditions": current_conditions, 
-                "decision": decision, 
-                "rowSupport": int(np.sum(value[node]))
-            })
-        else: 
-            name = feature_names[feature[node]]
-            th = round(threshold[node], 4)
-            recurse(children_left[node], current_conditions + [{"attribute": name, "op": "<=", "val": th, "value": f"<= {th}"}])
-            recurse(children_right[node], current_conditions + [{"attribute": name, "op": ">", "val": th, "value": f"> {th}"}])
-            
-    recurse(0, [])
-    return rules
-
-def is_subset(inner_conditions, candidate_conditions):
-    inner_set = {f"{c['attribute']}:{c['value']}" for c in inner_conditions}
-    candidate_set = {f"{c['attribute']}:{c['value']}" for c in candidate_conditions}
-    return inner_set.issubset(candidate_set)
-
-def calculate_stats(values, train_rows):
-    if not values: return {"min": 0, "max": 0, "avg1": 0, "avg2": 0}
-    return {
-        "min": float(np.min(values)),
-        "max": float(np.max(values)),
-        "avg1": round(float(np.mean(values)), 4),
-        "avg2": round(float(np.sum(values) / train_rows), 4) if train_rows else 0
-    }
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 @app.post("/process")
 async def process_data(
-    file: UploadFile = File(...), 
-    splitRatio: int = Form(...), 
-    targetAttr: str = Form(...)
+    file: UploadFile = File(...),
+    splitRatio: int = Form(...),
+    targetAttr: str = Form(...),
+    nTrees: int = Form(...),
+    maxDepth: int = Form(...)
 ):
-    start_time = time.time()
-    logs = []
-    
+    # --- PRZYGOTOWANIE DANYCH ---
     contents = await file.read()
     df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
-    logs.append(f"📦 Python: Wczytano {len(df)} wierszy.")
+    df.columns = [c.strip() for c in df.columns]
+    targetAttr = targetAttr.strip()
+    
+    df = df[df[targetAttr].astype(str).str.strip().str.lower() != 'c'].copy()
+    df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x).dropna()
 
+    X = df.drop(columns=[targetAttr])
+    y = df[targetAttr].astype(str)
+    feature_names = list(X.columns)
+
+    # Zapisujemy encodery, żeby potem "odkodować" tekst dla człowieka
+    X_encoded = X.copy()
     label_encoders = {}
-    for col in df.columns:
-        if df[col].dtype == 'object':
-            le = LabelEncoder()
-            df[col] = le.fit_transform(df[col].astype(str))
-            label_encoders[col] = le
+    for col in X.columns:
+        le = LabelEncoder()
+        X_encoded[col] = le.fit_transform(X[col].astype(str))
+        label_encoders[col] = le
 
-    X = df.drop(columns=[targetAttr, '_id'], errors='ignore')
-    y = df[targetAttr]
+    le_y = LabelEncoder()
+    y_encoded = le_y.fit_transform(y)
+    class_names = [str(c) for c in le_y.classes_]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_encoded, y_encoded, test_size=(100 - splitRatio) / 100, random_state=42
+    )
+
+    # --- ETAP 1: MODEL LOKALNY (LAS LOSOWY) ---
+    start_forest_time = time.time()
     
-    if targetAttr in label_encoders:
-        class_names = label_encoders[targetAttr].classes_
-    else:
-        class_names = np.unique(y).astype(str)
+    clf = RandomForestClassifier(n_estimators=int(nTrees), max_depth=int(maxDepth), random_state=42)
+    clf.fit(X_train, y_train)
 
-    test_size = (100 - splitRatio) / 100.0
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
-    logs.append(f"✂️ Python: Podział Train ({len(X_train)}), Test ({len(X_test)}).")
-
-    FOREST_SIZE = 10
-    rf = RandomForestClassifier(n_estimators=FOREST_SIZE, max_depth=10, random_state=42)
-    rf.fit(X_train, y_train)
-    logs.append(f"🌲 Python: Zbudowano Las Losowy ({FOREST_SIZE} drzew).")
-
-    forest_structure = []
-    tree_stats_table = []
+    y_pred_forest = clf.predict(X_test)
+    y_test_labels = le_y.inverse_transform(y_test)
+    y_pred_forest_labels = le_y.inverse_transform(y_pred_forest)
     
-    for i, tree in enumerate(rf.estimators_):
-        rules = extract_rules(tree, X.columns, class_names)
-        forest_structure.append(rules)
-        lengths = [len(r['conditions']) for r in rules]
-        supports = [r['rowSupport'] for r in rules]
-        tree_stats_table.append({
-            "id": i + 1, "count": len(rules),
-            "len": calculate_stats(lengths, len(X_train)),
-            "sup": calculate_stats(supports, len(X_train))
-        })
+    forest_acc = accuracy_score(y_test_labels, y_pred_forest_labels) * 100
+    forest_prec = precision_score(y_test_labels, y_pred_forest_labels, average='macro', zero_division=0) * 100
+    forest_rec = recall_score(y_test_labels, y_pred_forest_labels, average='macro', zero_division=0) * 100
+    forest_f1 = f1_score(y_test_labels, y_pred_forest_labels, average='macro', zero_division=0) * 100
 
-    all_rules = [r for tree_rules in forest_structure for r in tree_rules]
-    unique_rules_dict = {}
-    
-    for r in all_rules:
-        sorted_conds = tuple(sorted([f"{c['attribute']}:{c['value']}" for c in r['conditions']]))
-        key = (sorted_conds, r['decision'])
-        if key not in unique_rules_dict:
-            unique_rules_dict[key] = r
+    forest_rules_sets = [] 
+    all_unique_rules = {} 
 
-    unique_rules = list(unique_rules_dict.values())
-    logs.append(f"🔍 Python: Rozpoczęto Algorytm A dla {len(unique_rules)} unikalnych reguł.")
-    
-    algorithm_a_results = []
-    for candidate in unique_rules:
-        supporting_trees = []
-        for tree_idx, tree_rules in enumerate(forest_structure):
-            for inner in tree_rules:
-                if inner['decision'] == candidate['decision'] and is_subset(inner['conditions'], candidate['conditions']):
-                    supporting_trees.append(f"tree{tree_idx + 1}")
-                    break
-        algorithm_a_results.append({
-            "conditions": candidate['conditions'],
-            "decision": candidate['decision'],
-            "supportCount": len(supporting_trees),
-            "supportedTrees": supporting_trees
-        })
+    for tree_idx, tree_model in enumerate(clf.estimators_):
+        tree_ = tree_model.tree_
+        def recurse(node, current_conds):
+            if tree_.feature[node] != -2:
+                attr = feature_names[tree_.feature[node]]
+                threshold = round(float(tree_.threshold[node]), 3)
+                recurse(tree_.children_left[node], current_conds + ((attr, "<=", threshold),))
+                recurse(tree_.children_right[node], current_conds + ((attr, ">", threshold),))
+            else:
+                class_idx = np.argmax(tree_.value[node])
+                decision = class_names[class_idx]
+                rule_key = (frozenset(current_conds), decision)
+                if rule_key not in all_unique_rules:
+                    all_unique_rules[rule_key] = {"conditions": current_conds, "decision": decision}
+                tree_rules.append(rule_key)
         
-    algorithm_a_results.sort(key=lambda x: x['supportCount'], reverse=True)
+        tree_rules = []
+        recurse(0, tuple())
+        forest_rules_sets.append(tree_rules)
 
-    y_pred_rf = rf.predict(X_test)
-    acc_rf = accuracy_score(y_test, y_pred_rf) * 100
-    logs.append(f"📊 Baseline: Las Losowy (pełny) - Accuracy: {acc_rf:.2f}%")
+    end_forest_time = time.time()
+    forest_build_time = end_forest_time - start_forest_time 
 
-    optimized_rules = [r for r in algorithm_a_results if r['supportCount'] > 1]
+    # --- ETAP 2: MODEL GLOBALNY (ALGORYTM A) ---
+    start_alga_time = time.time()
     
-    logs.append(f"✂️ Optymalizacja: Odrzucono reguły ze wsparciem 1. Pozostało: {len(optimized_rules)} silnych reguł.")
-
-    fallback_idx = y_train.mode()[0]
-    fallback_decision = str(class_names[fallback_idx])
-
-    def predict_with_rules(row):
-        votes = []
-        for rule in optimized_rules:
-            matches = True
-            for cond in rule['conditions']:
-                attr = cond['attribute']
-                if cond['op'] == '<=' and not (row[attr] <= cond['val']):
-                    matches = False
-                    break
-                elif cond['op'] == '>' and not (row[attr] > cond['val']):
-                    matches = False
-                    break
-            if matches:
-                votes.append(rule['decision'])
+    optimized_results = []
+    for r_key, r_val in all_unique_rules.items():
+        cond_set, decision = r_key
+        sup = sum(1 for t_rules in forest_rules_sets if any(tc.issubset(cond_set) and td == decision for tc, td in t_rules))
         
-        if len(votes) > 0:
-            return max(set(votes), key=votes.count)
+        # --- TŁUMACZ REGUŁ (XAI) ---
+        # 1. Konsolidacja przedziałów (usuwanie powtórzeń)
+        bounds = {}
+        for attr, op, val in r_val['conditions']:
+            if attr not in bounds: 
+                bounds[attr] = {'min': -float('inf'), 'max': float('inf')}
+            if op == "<=": 
+                bounds[attr]['max'] = min(bounds[attr]['max'], val)
+            elif op == ">": 
+                bounds[attr]['min'] = max(bounds[attr]['min'], val)
+                
+        # 2. Odkodowanie na wartości tekstowe dla Frontendu
+        display_conds = []
+        for attr, b in bounds.items():
+            min_v, max_v = b['min'], b['max']
+            le = label_encoders.get(attr)
             
-        return fallback_decision
+            if le:
+                # Szukamy, jakie etykiety tekstowe mieszczą się w tym przedziale
+                valid_classes = [str(c) for i, c in enumerate(le.classes_) if min_v < i <= max_v]
+                if len(valid_classes) == 1:
+                    display_conds.append({"attribute": attr, "op": "=", "val": valid_classes[0]})
+                elif len(valid_classes) > 1 and len(valid_classes) < len(le.classes_):
+                    display_conds.append({"attribute": attr, "op": "IN", "val": "[" + ", ".join(valid_classes) + "]"})
+            else:
+                # Jeśli kolumna była czysto liczbowa (niekodowana)
+                if min_v > -float('inf') and max_v < float('inf'):
+                    display_conds.append({"attribute": attr, "op": "∈", "val": f"({round(min_v, 2)}, {round(max_v, 2)}]"})
+                elif min_v > -float('inf'):
+                    display_conds.append({"attribute": attr, "op": ">", "val": round(min_v, 2)})
+                elif max_v < float('inf'):
+                    display_conds.append({"attribute": attr, "op": "<=", "val": round(max_v, 2)})
 
-    y_pred_rules = X_test.apply(predict_with_rules, axis=1)
+        rule_data = {
+            "conditions": display_conds, # Czyste reguły wysyłane do Reacta
+            "_raw_conditions": r_val['conditions'], # Surowe reguły zostawione dla funkcji predict()
+            "decision": decision,
+            "supportCount": sup
+        }
+        optimized_results.append(rule_data)
 
-    y_test_str = [str(class_names[val]) for val in y_test]
+# 1. Filtrujemy szum (zostawiamy > 1)
+# 1. Filtrujemy szum (zostawiamy > 1)
+    final_rules = [r for r in optimized_results if r['supportCount'] > 1]
+    if not final_rules: final_rules = optimized_results
 
-    acc_rules = accuracy_score(y_test_str, y_pred_rules) * 100
-    f1_rules = f1_score(y_test_str, y_pred_rules, average='macro')
+    # 2. TIE-BREAKER: Sortujemy listę (Najlepsza leci na samą górę)
+    final_rules.sort(key=lambda x: (
+        -x['supportCount'], 
+        len(x['conditions']), 
+        len(str(x['conditions'])), 
+        str(x['conditions'])
+    ))
 
-    logs.append(f"🎯 TWOJA METODA: Model zoptymalizowany - Accuracy: {acc_rules:.2f}%")
-    logs.append(f"⚡ Python: Czas całkowity: {round(time.time() - start_time, 2)}s.")
+    # --- 3. TWOJA INNOWACJA: Oznaczenie najlepszej reguły ---
+    if len(final_rules) > 0:
+        # Dodajemy specjalną flagę tylko do pierwszego elementu (indeks 0)
+        final_rules[0]['isBestRule'] = True 
+    # --------------------------------------------------------
+
+    fallback = class_names[pd.Series(y_train).mode()[0]]
+    def predict(row):
+        # ... reszta kodu bez zmian ...
+        for rule in final_rules:
+            match = True
+            for attr, op, val in rule['_raw_conditions']:
+                if op == "<=" and not (row[attr] <= val + 0.001):
+                    match = False; break
+                elif op == ">" and not (row[attr] > val + 0.001):
+                    match = False; break
+            if match:
+                return rule['decision']
+        return fallback
+
+    y_pred_custom = X_test.apply(predict, axis=1).tolist()
+    y_true_labels = le_y.inverse_transform(y_test).tolist()
+    
+    custom_acc = accuracy_score(y_true_labels, y_pred_custom) * 100
+    custom_prec = precision_score(y_true_labels, y_pred_custom, average='macro', zero_division=0) * 100
+    custom_rec = recall_score(y_true_labels, y_pred_custom, average='macro', zero_division=0) * 100
+    custom_f1 = f1_score(y_true_labels, y_pred_custom, average='macro', zero_division=0) * 100
+
+    end_alga_time = time.time()
+    alga_build_time = end_alga_time - start_alga_time
 
     return {
-        "treeStatsTable": tree_stats_table,
-        "algorithmAResults": algorithm_a_results,
-        "evalStats": { "accuracy": acc_rules, "macroF1": f1_rules }, 
-        "logs": logs,
-        "forestSize": FOREST_SIZE,
-        "trainRows": len(X_train)
-    }
+            "evalStats": {
+                "accuracy": round(custom_acc, 2),
+                "precision": round(custom_prec, 2),
+                "recall": round(custom_rec, 2),
+                "f1": round(custom_f1, 2),
+                "customTime": round(alga_build_time, 2),
+                
+                "forestAccuracy": round(forest_acc, 2),
+                "forestPrecision": round(forest_prec, 2),
+                "forestRecall": round(forest_rec, 2),
+                "forestF1": round(forest_f1, 2),
+                "forestTime": round(forest_build_time, 2)
+            },
+            "algorithmAResults": final_rules, # <--- ZMIENIONE NA final_rules!
+            "forestSize": nTrees
+        }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
