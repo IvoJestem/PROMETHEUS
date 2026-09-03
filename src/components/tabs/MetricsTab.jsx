@@ -65,7 +65,7 @@ export default function MetricsTab({ integratedResults }) {
 
             {!stats ? (
               <div style={{ padding: '40px 0', textAlign: 'center', color: colors.danger, fontSize: '12px' }}>
-                ⚠️ Brak danych z API<br />
+                 Brak danych z API<br />
                 <span style={{ color: colors.muted, fontSize: '11px' }}>Wariant nie został wyliczony lub zwrócił puste dane.</span>
               </div>
             ) : (

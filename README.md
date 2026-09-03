@@ -1,65 +1,59 @@
-# 🌲 Optymalizacja Reguł Decyzyjnych (Global Rules AI)
+# Prometheus: System Analizy i Usuwania Niespójności w Regułach Decyzyjnych
 
-Aplikacja stworzona w architekturze **Klient-Serwer (React + Python FastAPI)** w ramach pracy magisterskiej. Projekt służy do globalnej optymalizacji reguł decyzyjnych na podstawie danych rozproszonych. 
+Projekt badawczy i aplikacyjny (praca magisterska) realizujący zaawansowany potok analityczny dla systemów decyzyjnych w oparciu o teorię zbiorów przybliżonych (ang. *Rough Sets Theory*) oraz wyjaśnialną sztuczną inteligencję (XAI). System umożliwia wykrywanie niespójności, ekstrakcję reguł z rozproszonych lasów losowych (algorytm ID3) oraz ich globalną optymalizację przy użyciu Algorytmu A.
 
-Lokalne źródła danych są symulowane przez zbiory reguł indukowanych z **Lasów Losowych (Random Forest)**. Rdzeniem optymalizacji jest implementacja **Algorytmu A (Moshkov)**, który pozwala na ekstrakcję globalnych wzorców (wiedzy wspólnej) oraz redukcję szumu lokalnego.
+## 🛠 Stos technologiczny (Tech Stack)
+* **Frontend:** React 19, Vite, Tailwind CSS, Lucide Icons
+* **Backend:** Python, FastAPI, Pandas, NumPy, Scikit-learn
+* **Zarządzanie procesami:** Concurrently (zintegrowany start pełnego stosu jednym poleceniem)
 
-## 🚀 Architektura i Funkcjonalności
+## 🚀 Szybki start (Quick Start)
 
-Projekt został podzielony na dwie warstwy:
+### Wymagania wstępne
+* Node.js (wersja 18+)
+* Python (wersja 3.10+)
 
-### 1. Backend (Silnik Analityczny - Python)
-* **Las Losowy:** Budowa lasów losowych przy użyciu biblioteki `scikit-learn`.
-* **Ekstrakcja:** Przekształcanie węzłów drzew (Black-Box) w czytelne reguły (White-Box).
-* **Algorytm A:** Wyliczanie współczynnika wsparcia (support) dla wszystkich unikalnych reguł względem wszystkich drzew w lesie.
-* **Optymalizacja i Klasyfikacja:** Odrzucanie reguł specyficznych lokalnie (Support = 1) i klasyfikowanie zbioru testowego zoptymalizowaną Listą Decyzyjną z wykorzystaniem głosowania większościowego (Majority Voting).
-
-### 2. Frontend (Panel Analityczny - React / Vite)
-* **Integracja z UCI ML:** Predefiniowana lista wbudowanych zbiorów danych z repozytorium UCI Machine Learning (m.in. *cars, mushroom, breast-cancer*).
-* **Wizualizacja Wsparcia:** Interaktywna analiza współczynnika wsparcia z wykresem kompresji wiedzy.
-* **Statystyki Dashboard:** Kafelki metryk w czasie rzeczywistym prezentujące Accuracy (trafność), Macro F1 oraz stopień redukcji reguł.
-
----
-
-## 🛠️ Wymagania i Instalacja
-
-Projekt wymaga uruchomienia dwóch środowisk jednocześnie: serwera obliczeniowego w Pythonie oraz interfejsu w Node.js.
-
-### KROK 1: Uruchomienie Serwera (Backend)
-Wymagany zainstalowany **Python 3.9+**.
-
-1. Przejdź do głównego folderu projektu.
-2. (Opcjonalnie) Stwórz wirtualne środowisko: `python -m venv venv` i aktywuj je.
-3. Zainstaluj wymagane biblioteki:
+### Instalacja i uruchomienie krok po kroku
+1. Sklonuj repozytorium:
    ```bash
-   pip install fastapi uvicorn pandas scikit-learn python-multipart
-    ```
-    4. Uruchom serwer API:
+   git clone https://github.com/IvoJestem/PROMETHEUS.git
+   cd magi
+   ```
+2.  Zainstaluj zależności frontendu:
+      ```bash
+      npm install
+      ```
+
+3. Zainstaluj zależności backendu (zalecane wirtualne środowisko Python):
    ```bash
-   uvicorn main:app --reload
+   pip install -r requirements.txt
    ```
-   Serwer uruchomi się pod adresem http://localhost:8000 i będzie nasłuchiwał żądań od interfejsu.
-   ### KROK 2: Uruchomienie Interfejsu (Frontend)
-   Wymagany zainstalowany **Node.js**. Otwórz nowe okno terminala w głównym folderze projektu.
-   1. Zainstaluj pakiety:
+
+4. Uruchom cały system (frontend + backend równolegle za pomocą skonfigurowanego skryptu):
    ```bash
-   npm install
+   npm start
    ```
-   2. Uruchom serwer deweloperski Vite:
-   ```bash
-   npm run dev
-   ```
-  Aplikacja otworzy się w przeglądarce pod adresem http://localhost:5173 (lub innym wskazanym w konsoli). 
-## 📄 Format Danych Wejściowych
-Aplikacja posiada wbudowane zbiory danych z repozytorium UCI ML, jednak umożliwia też wgranie własnych plików **CSV**, sformatowanych w następujący sposób:
-1. **Nagłówki:** Pierwszy wiersz musi zawierać nazwy atrybutów.
-2. **Atrybuty:** Wartości liczbowe lub tekstowe (automatycznie mapowane przez LabelEncoder).
-3. **Klasa Decyzyjna:** Ostatnia kolumna jest traktowana jako target.
-4. **Separator:** Przecinek (,).
-Przykład:
-```python
-buying,maint,doors,persons,lug_boot,safety,class
-vhigh,vhigh,2,2,small,low,unacc
-vhigh,vhigh,2,2,small,med,unacc
-vhigh,vhigh,2,2,small,high,unacc
-   ```
+
+5. Otwórz przeglądarkę i przejdź pod adres: `http://localhost:5173`
+
+## 📂 Architektura i struktura projektu
+* `main.py` - główny serwer API (FastAPI) obsługujący potoki analityczne i eksperymenty badawcze.
+* `analytics.py` - moduł implementujący warianty rozwiązywania niespójności:
+  * **GD** (*Generalized Decision*) - zachowanie uogólnionych konfliktów decyzyjnych,
+  * **MCD** (*Most Common Decision*) - decyzja większościowa (dominanta),
+  * **CUSTOM / ET** (*Entropy Threshold*) - filtracja szumu informacyjnego za pomocą progu entropii ($H \le 0.85$).
+* `xai_service.py` - silnik drzew i lasów losowych ID3, ekstrakcja reguł oraz Algorytm A.
+* `ResearchTab.py` - moduł symulacji siatki badawczej i oceny modeli metodą walidacji.
+* `src/` - komponenty interfejsu użytkownika (pulpit analityczny, macierz podatności, eksplorator reguł, raporty).
+* `public/data/` - lokalny katalog przeznaczony na eksperymenty z plikami CSV (katalog pomijany w zdalnym repozytorium ze względów licencyjnych).
+* `src/components/EtEasterEgg.jsx` - interaktywny komponent wizualny z animacją wektorową SVG.
+* `src/utils/helpers.js` - moduł pomocniczy do konwersji reguł logicznych na czytelne komunikaty tekstowe.
+* `src/constants/theme.ts` - spójna paleta kolorów interfejsu (Dark UI).
+
+## 📊 Źródła danych (Data Sources)
+Pliki CSV wykorzystywane w procesie badawczym (`balance-scale.csv`, `breast-cancer.csv`, `cars.csv`,`house-votes.csv`, `lymphography.csv`, `mushroom.csv`, `nursery.csv`, `tic-tac-toe.csv`) służą wyłącznie do celów naukowych i weryfikacji algorytmów. Zbiory te pochodzą z ogólnodostępnego **UCI Machine Learning Repository**. 
+
+Ze względu na restrykcje licencyjne pierwotnych autorów, surowe pliki danych nie są dołączone do publicznego repozytorium kodu, należy umieścić je lokalnie w folderze `public/data/` w celu uruchomienia lokalnych analiz.
+
+## 📄 Licencja
+Projekt udostępniany jest na licencji **MIT**. Szczegółowe informacje znajdują się w pliku `LICENSE`.

@@ -147,7 +147,6 @@ def optimize_rules_algorithm_a(raw_rules, total_trees=30, n_folds=5):
       }
     unique_rules[r_key]['totalHits'] += 1
 
-  # Normalizacja: liczymy średnią liczbę wystąpień w 1 lesie
   for r in unique_rules.values():
     r['supportCount'] = max(1, int(round(r['totalHits'] / n_folds)))
 
@@ -307,7 +306,6 @@ def run_xai_pipeline(
 
   y_strat = y.apply(pick_first).astype(str)
 
-  # Zabezpieczenie przed błędem singletonów w StratifiedKFold
   _, counts = np.unique(y_strat, return_counts=True)
   if len(counts) > 1 and np.min(counts) >= 5:
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)

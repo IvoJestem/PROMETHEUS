@@ -4,9 +4,9 @@ import pandas as pd
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from analytics import run_inconsistency_data_generation
 from research_service import run_full_research_experiment
 from xai_service import run_xai_pipeline
-from analytics import run_inconsistency_data_generation
 
 app = FastAPI()
 
@@ -29,7 +29,6 @@ def read_flexible_csv(contents: bytes) -> pd.DataFrame:
     df.columns = [str(c).strip() for c in df.columns]
     df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x).dropna()
 
-    # Odrzucamy wiersze kontrolne/błędne 'c' z kolumny decyzyjnej
     last_col = df.columns[-1]
     df = df[df[last_col].astype(str).str.strip().str.lower() != "c"].copy()
     return df

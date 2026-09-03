@@ -22,15 +22,11 @@ def run_inconsistency_data_generation(df, target_attr, attr_to_remove):
       c for c in df_inconsistent.columns if c != target_attr
   ]
 
-  # 1. Wariant GD (Generalized Decision)
-  # Grupowanie unikalnych wzorców warunkowych
   gd_records = []
   for name, group in df_inconsistent.groupby(remaining_cond_attrs):
     unique_decisions = sorted(list(set(group[target_attr].astype(str))))
     row_dict = group.iloc[0][remaining_cond_attrs].to_dict()
 
-    # Jeśli decyzja jest jednoelementowa -> czysta klasa (np. '1')
-    # Jeśli wieloelementowa -> format listy jako zbiór uogólniony (np. "['1', '2']")
     if len(unique_decisions) == 1:
       row_dict[target_attr] = unique_decisions[0]
     else:
@@ -44,7 +40,6 @@ def run_inconsistency_data_generation(df, target_attr, attr_to_remove):
       df_inconsistent[remaining_cond_attrs].drop_duplicates().copy()
   )
 
-  # 2. Wariant MCD (Most Common Decision)
   mcd_rows = []
   for _, row in df_unique_conds.iterrows():
     mask = pd.Series(True, index=df_inconsistent.index)
@@ -60,7 +55,6 @@ def run_inconsistency_data_generation(df, target_attr, attr_to_remove):
 
   df_mcd = pd.DataFrame(mcd_rows)
 
-  # 3. Wariant CUSTOM (Entropy Threshold <= 0.85)
   custom_rows = []
   for _, row in df_unique_conds.iterrows():
     mask = pd.Series(True, index=df_inconsistent.index)

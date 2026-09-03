@@ -114,7 +114,7 @@ export default function RulesTab({
                     }}>
                       {r.isBestRule && (
                         <div style={{ color: activeAccent, fontWeight: '900', marginBottom: '12px', fontSize: '11px', letterSpacing: '0.05em' }}>
-                          👑 OPTYMALNY WZORZEC GLOBALNY (NAJWYŻSZE WSPARCIE W LESIE)
+                          OPTYMALNY WZORZEC GLOBALNY (NAJWYŻSZE WSPARCIE W LESIE)
                         </div>
                       )}
                       <span style={{ color: colors.muted, fontWeight: '700' }}>IF </span> 
@@ -130,7 +130,7 @@ export default function RulesTab({
                       
                       {typeof generateRuleSentence === 'function' && (
                         <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px dashed ${colors.border}`, color: colors.muted, fontStyle: 'italic', fontSize: '11px', lineHeight: '1.6' }}>
-                          🗣️ {generateRuleSentence(r.conditions, r.decision)}
+                          {generateRuleSentence(r.conditions, r.decision)}
                         </div>
                       )}
                     </div>

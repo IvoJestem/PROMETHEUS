@@ -73,12 +73,12 @@ export default function PrometheusDashboard() {
         setIsLoading(false);
         clearInterval(timerRef.current);
 
-        console.log("⏳ PROMETHEUS: Uruchamiam obliczenia siatki badawczej w tle...");
+        console.log("PROMETHEUS: Uruchamiam obliczenia siatki badawczej w tle...");
         const resResponse = await fetch("http://localhost:8000/run-research-experiment", { method: "POST", body: formData });
         
         if (resResponse.ok) {
           const resData = await resResponse.json();
-          console.log("✅ PROMETHEUS: Siatka przeliczona!");
+          console.log("PROMETHEUS: Siatka przeliczona!");
 
           setIntegratedResults(prevData => ({
             ...prevData,
@@ -224,7 +224,7 @@ export default function PrometheusDashboard() {
             textAlign: 'center',
             padding: '20px'
           }}>
-            Skonfiguruj liczbę usuwanych cech (k) w panelu po lewej i kliknij <b>„🚀 URUCHOM POTOK DLA k = {numAttrsToRemove}”</b>.
+            Skonfiguruj liczbę usuwanych cech (k) w panelu po lewej i kliknij <b>„URUCHOM POTOK DLA k = {numAttrsToRemove}”</b>.
           </div>
         )}
 

@@ -31,8 +31,7 @@ export default function MatrixTab({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      
-      {/* 1. SEKCJA MACIERZY ROUGH SETS */}
+
       <div style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
         
         <div style={{ marginBottom: '20px' }}>
@@ -111,7 +110,6 @@ export default function MatrixTab({
         )}
       </div>
 
-      {/* 2. SEKCJA CHARAKTERYSTYKI ZBIORU */}
       {integratedResults && integratedResults.dataset_stats && (
         <div style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
           <h4 style={{ color: colors.custom, margin: '0 0 14px 0', fontSize: '14px', fontWeight: '800', letterSpacing: '0.03em', textTransform: 'uppercase' }}>

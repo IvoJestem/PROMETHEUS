@@ -181,9 +181,6 @@ def run_full_research_experiment(
     else:
       y_strat = y.copy()
 
-    # =========================================================================
-    # FAZA I: REPREZENTACJA WIEDZY (BEZ PODZIAŁU ZBIORU)
-    # =========================================================================
     for nTrees in S_values:
       forest_trees = []
       for _ in range(nTrees):
@@ -201,7 +198,6 @@ def run_full_research_experiment(
       for t_idx, tree in enumerate(forest_trees):
         raw_rules.extend(extract_rules_from_id3(tree, {}, t_idx))
 
-      # Odrzucamy reguły puste / bezprzesłankowe
       raw_rules_valid = [r for r in raw_rules if len(r.get("conditions", [])) > 0]
       if not raw_rules_valid:
         raw_rules_valid = raw_rules
@@ -270,9 +266,6 @@ def run_full_research_experiment(
           ),
       }
 
-    # =========================================================================
-    # FAZA II: KLASYFIKACJA (PODZIAŁ 70-30, 5 POWTÓRZEŃ - Z BEZPIECZNYM SPLITEM)
-    # =========================================================================
     for nTrees in S_values:
       _, counts = np.unique(y_strat, return_counts=True)
       if len(counts) > 1 and np.min(counts) >= 2:

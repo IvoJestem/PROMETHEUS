@@ -1,7 +1,6 @@
 import React from 'react';
 import { colors } from '../constants/theme';
 
-// Automatyczne wykrycie plików CSV znajdujących się w folderze public/data
 const datasetFiles = Object.keys(import.meta.glob('/public/data/*.csv')).map(path => 
   path.split('/').pop() || ''
 );
@@ -43,14 +42,12 @@ export default function Sidebar({
       
       setSelectedFile(fileObj);
 
-      // Bezpieczne pobranie nazwy kolumny decyzyjnej
       const firstLine = text.split('\n')[0];
       const delimiter = firstLine.includes(';') ? ';' : ',';
       const headers = firstLine.split(delimiter).map(h => h.trim()).filter(Boolean);
       setSelectedTarget(headers[headers.length - 1]);
       setIntegratedResults(null);
 
-      // Pobieramy listę atrybutów
       const attrFormData = new FormData();
       attrFormData.append("file", fileObj);
       const attrRes = await fetch("http://localhost:8000/get-attributes", { method: "POST", body: attrFormData });
@@ -62,7 +59,6 @@ export default function Sidebar({
         setSelectedAttrToRemove(attrs[0] || "");
       }
 
-      // Generujemy pełną macierz dla wszystkich k
       const matrixFormData = new FormData();
       matrixFormData.append("file", fileObj);
       const matrixRes = await fetch("http://localhost:8000/calculate-full-inconsistency-matrix", { method: "POST", body: matrixFormData });
@@ -189,7 +185,7 @@ export default function Sidebar({
             transition: 'all 0.2s ease', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)', letterSpacing: '0.02em'
           }}
         >
-          {isLoading ? `PRZETWARZANIE (${timer}s)...` : `🚀 URUCHOM POTOK DLA k = ${numAttrsToRemove}`}
+          {isLoading ? `PRZETWARZANIE (${timer}s)...` : `URUCHOM POTOK DLA k = ${numAttrsToRemove}`}
         </button>
       </div>
 

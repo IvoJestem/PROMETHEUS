@@ -9,7 +9,7 @@ export default function ResearchTab({ integratedResults }) {
   if (!integratedResults || !results) {
     return (
       <div style={{ padding: '40px', textAlign: 'center', color: colors.muted, border: `2px dashed ${colors.border}`, borderRadius: '12px' }}>
-        Brak danych badawczych. Wybierz zbiór z panelu po lewej i kliknij przycisk <b style={{ color: colors.custom }}>"🚀 URUCHOM PEŁNY POTOK PROMETHEUS"</b>, aby wygenerować statystyki!
+        Brak danych badawczych. Wybierz zbiór z panelu po lewej i kliknij przycisk <b style={{ color: colors.custom }}>"URUCHOM PEŁNY POTOK PROMETHEUS"</b>, aby wygenerować statystyki!
       </div>
     );
   }
@@ -29,8 +29,7 @@ export default function ResearchTab({ integratedResults }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      
-      {/* 1. NAGŁÓWEK I WYBÓR METODY NIESPÓJNOŚCI */}
+
       <div style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           <div>
@@ -64,7 +63,6 @@ export default function ResearchTab({ integratedResults }) {
           </div>
         </div>
 
-        {/* METADANE ZBIORU */}
         {currentData?.dataset_metadata && (
           <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, display: 'flex', gap: '24px', fontSize: '13px' }}>
             <div>Obiekty (wiersze): <b style={{ color: colors.text }}>{currentData.dataset_metadata.rows_count}</b></div>
@@ -74,7 +72,6 @@ export default function ResearchTab({ integratedResults }) {
         )}
       </div>
 
-      {/* OSTRZEŻENIE JEŚLI DANE W TLE JESZCZE SIĘ LICZĄ */}
       {!isResearchData ? (
         <div style={{ 
           padding: '36px', 
@@ -94,10 +91,9 @@ export default function ResearchTab({ integratedResults }) {
         </div>
       ) : (
         <>
-          {/* 2. TABELA: REPREZENTACJA WIEDZY (Las Losowy vs Algorytm A) */}
           <div style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
             <h4 style={{ margin: '0 0 16px 0', color: activeAccent, fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              I. Reprezentacja Wiedzy – Porównanie Lasu Losowego i Algorytmu A (Bez podziału zbioru)
+              I. Reprezentacja Wiedzy - Porównanie Lasu Losowego i Algorytmu A (Bez podziału zbioru)
             </h4>
             
             <div style={{ overflowX: 'auto' }}>
@@ -118,7 +114,6 @@ export default function ResearchTab({ integratedResults }) {
                   {currentData?.FAZA_1_REPREZENTACJA_WIEDZY_BEZ_PODZIALU && 
                     Object.entries(currentData.FAZA_1_REPREZENTACJA_WIEDZY_BEZ_PODZIALU).map(([sKey, stats]) => (
                     <React.Fragment key={sKey}>
-                      {/* Wiersz dla surowego Lasu Losowego */}
                       <tr style={{ backgroundColor: 'rgba(255,255,255,0.01)' }}>
                         <td rowSpan={2} style={{ padding: '14px', textAlign: 'left', fontWeight: 'bold', borderBottom: `1px solid ${colors.border}`, borderRight: `1px solid ${colors.border}` }}>
                           {sKey.replace('_', ' = ')} drzew
@@ -133,7 +128,6 @@ export default function ResearchTab({ integratedResults }) {
                           {stats.stopien_kompresji_procent ?? 0}%
                         </td>
                       </tr>
-                      {/* Wiersz dla zoptymalizowanego Algorytmu A */}
                       <tr style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: 'rgba(255,255,255,0.03)' }}>
                         <td style={{ padding: '10px', textAlign: 'left', color: activeAccent, fontWeight: 'bold' }}>Algorytm A (Zoptymalizowany)</td>
                         <td style={{ padding: '10px', fontWeight: '800', color: colors.text }}>{stats.liczba_regul_algorytm_A ?? '-'}</td>
@@ -148,11 +142,9 @@ export default function ResearchTab({ integratedResults }) {
               </table>
             </div>
           </div>
-
-          {/* 3. TABELA: KLASYFIKACJA (PODZIAŁ 70/30 - 5 POWTÓRZEŃ) */}
           <div style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
             <h4 style={{ margin: '0 0 16px 0', color: activeAccent, fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              II. Ewaluacja Klasyfikacji – Podział 70% Train / 30% Test (Średnia z 5 losowań stratyfikowanych)
+              II. Ewaluacja Klasyfikacji - Podział 70% Train / 30% Test (Średnia z 5 losowań stratyfikowanych)
             </h4>
 
             <div style={{ overflowX: 'auto' }}>
@@ -177,7 +169,6 @@ export default function ResearchTab({ integratedResults }) {
                       
                       return (
                         <React.Fragment key={sKey}>
-                          {/* Wiersz dla Drzew */}
                           <tr style={{ backgroundColor: 'rgba(255,255,255,0.01)' }}>
                             <td rowSpan={2} style={{ padding: '14px', textAlign: 'left', fontWeight: 'bold', borderBottom: `1px solid ${colors.border}`, borderRight: `1px solid ${colors.border}` }}>
                               {sKey.replace('_', ' = ')}
@@ -197,7 +188,6 @@ export default function ResearchTab({ integratedResults }) {
                               {diff !== undefined ? (diff > 0 ? `+${diff}%` : `${diff}%`) : '-'}
                             </td>
                           </tr>
-                          {/* Wiersz dla Reguł */}
                           <tr style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: 'rgba(255,255,255,0.03)' }}>
                             <td style={{ padding: '10px', textAlign: 'left', color: activeAccent, fontWeight: 'bold' }}>Reguły (Algorytm A)</td>
                             <td style={{ padding: '10px', fontWeight: '800', color: colors.text }}>{reguly?.avg_accuracy ?? '-'}%</td>
