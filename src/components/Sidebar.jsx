@@ -24,6 +24,8 @@ export default function Sidebar({
   setMaxDepth,
   splitRatio,
   setSplitRatio,
+  entropyThreshold,
+  setEntropyThreshold,
   runIntegratedAnalysis,
   isLoading,
   timer,
@@ -81,39 +83,30 @@ export default function Sidebar({
   };
 
   return (
-    <aside style={{ width: '340px', borderRight: `1px solid ${colors.border}`, padding: '28px', backgroundColor: colors.card, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '24px', zIndex: 10 }}>
+    <aside style={{ width: '360px', borderRight: `1px solid ${colors.border}`, padding: '32px', backgroundColor: colors.card, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '24px', zIndex: 10 }}>
       <div>
-        <div style={{ fontSize: '24px', fontWeight: '900', color: colors.text, letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ fontSize: '22px', fontWeight: '800', color: colors.text, letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{
-            width: '10px', height: '10px', borderRadius: '50%',
-            backgroundColor: secretEnabled ? colors.custom : '#3f3f46',
-            animation: secretEnabled ? 'pulseSecret 2s infinite ease-in-out' : 'none',
-            transition: 'background-color 0.3s'
+            width: '8px', height: '8px', borderRadius: '50%',
+            backgroundColor: secretEnabled ? colors.custom : colors.muted,
+            boxShadow: secretEnabled ? '0 0 10px #10b981' : 'none',
+            transition: 'all 0.3s'
           }}></span>
           PROMETHEUS
         </div>
-        <div style={{ fontSize: '11px', color: colors.muted, marginTop: '4px', lineHeight: '1.6', letterSpacing: '0.01em' }}>
-          <span style={{ color: colors.custom, fontWeight: 'bold' }}>P</span>anel{' '}
-          <span style={{ color: colors.custom, fontWeight: 'bold' }}>R</span>ozstrzygania{' '}
-          <span style={{ color: colors.custom, fontWeight: 'bold' }}>O</span>bszarów{' '}
-          <span style={{ color: colors.custom, fontWeight: 'bold' }}>M</span>etodycznych{' '}
-          <span style={{ color: colors.custom, fontWeight: 'bold' }}>E</span>waluacji{' '}
-          <span style={{ color: colors.custom, fontWeight: 'bold' }}>T</span>abelarycznych{' '}
-          <span style={{ color: colors.custom, fontWeight: 'bold' }}>H</span>ipotez{' '}
-          <span style={{ color: colors.custom, fontWeight: 'bold' }}>E</span>ntropijnych i{' '}
-          <span style={{ color: colors.custom, fontWeight: 'bold' }}>U</span>jednoliconych{' '}
-          <span style={{ color: colors.custom, fontWeight: 'bold' }}>S</span>ystemów
+        <div style={{ fontSize: '11px', color: colors.muted, marginTop: '8px', lineHeight: '1.5' }}>
+          System Analizy i Usuwania Niespójności w Regułach Decyzyjnych (Rough Sets & XAI)
         </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div>
-          <label style={{ fontSize: '11px', fontWeight: '800', color: colors.muted, letterSpacing: '0.05em' }}>ZBIÓR DANYCH</label>
+          <label style={{ fontSize: '11px', fontWeight: '600', color: colors.muted, letterSpacing: '0.04em' }}>ZBIÓR DANYCH</label>
           <select
             onChange={handleFileChange}
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: `1px solid ${colors.border}`, backgroundColor: colors.bg, color: colors.text, marginTop: '6px', fontSize: '13px' }}
+            style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1px solid ${colors.border}`, backgroundColor: colors.cardSecondary, color: colors.text, marginTop: '6px', fontSize: '13px', outline: 'none' }}
           >
-            <option value="">Wybierz plik z repozytorium...</option>
+            <option value="">Wybierz zbiór z UCI Repository...</option>
             {datasetFiles.map(fileName => (
               <option key={fileName} value={fileName}>{fileName}</option>
             ))}
@@ -121,13 +114,13 @@ export default function Sidebar({
         </div>
 
         {availableAttributes.length > 1 && (
-          <div style={{ backgroundColor: '#141417', padding: '14px', borderRadius: '10px', border: `1px solid ${colors.border}` }}>
+          <div style={{ backgroundColor: colors.cardSecondary, padding: '14px', borderRadius: '12px', border: `1px solid ${colors.border}` }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label style={{ fontSize: '11px', fontWeight: '800', color: colors.custom, letterSpacing: '0.05em' }}>
-                LICZBA ATRYBUTÓW DO USUNIĘCIA (k)
+              <label style={{ fontSize: '11px', fontWeight: '600', color: colors.custom, letterSpacing: '0.04em' }}>
+                LICZBA ATRYBUTÓW (k)
               </label>
-              <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>
-                k = {numAttrsToRemove} z {availableAttributes.length}
+              <span style={{ fontSize: '12px', fontWeight: '600', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>
+                k = {numAttrsToRemove}
               </span>
             </div>
             <input
@@ -136,17 +129,17 @@ export default function Sidebar({
               max={Math.max(1, availableAttributes.length - 1)}
               value={numAttrsToRemove}
               onChange={e => handleKChange(e.target.value)}
-              style={{ marginTop: '10px', width: '100%' }}
+              style={{ marginTop: '12px', width: '100%' }}
             />
           </div>
         )}
 
         {availableAttributes.length > 0 && (
           <div>
-            <label style={{ fontSize: '11px', fontWeight: '800', color: colors.muted, letterSpacing: '0.05em' }}>
+            <label style={{ fontSize: '11px', fontWeight: '600', color: colors.muted, letterSpacing: '0.04em' }}>
               USUWANE CECHY ({numAttrsToRemove})
             </label>
-            <div style={{ padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border}`, backgroundColor: '#141417', color: colors.custom, marginTop: '6px', fontSize: '12px', fontWeight: 'bold', wordBreak: 'break-all' }}>
+            <div style={{ padding: '10px 14px', borderRadius: '10px', border: `1px solid ${colors.border}`, backgroundColor: colors.cardSecondary, color: colors.custom, marginTop: '6px', fontSize: '12px', fontWeight: '600', wordBreak: 'break-all' }}>
               {selectedAttrToRemove || "Brak"}
             </div>
           </div>
@@ -154,57 +147,64 @@ export default function Sidebar({
 
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <label style={{ fontSize: '11px', fontWeight: '800', color: colors.muted, letterSpacing: '0.05em' }}>LICZBA DRZEW W LESIE (EKSPLORATOR)</label>
-            <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>{nTrees}</span>
+            <label style={{ fontSize: '11px', fontWeight: '600', color: colors.muted, letterSpacing: '0.04em' }}>PRÓG ENTROPII (τ)</label>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>{Number(entropyThreshold).toFixed(2)}</span>
           </div>
-          <input type="range" min="1" max="100" value={nTrees} onChange={e => setNTrees(e.target.value)} style={{ marginTop: '10px', width: '100%' }} />
+          <input type="range" min="0.30" max="1.00" step="0.05" value={entropyThreshold} onChange={e => setEntropyThreshold(parseFloat(e.target.value))} style={{ marginTop: '10px', width: '100%' }} />
         </div>
 
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <label style={{ fontSize: '11px', fontWeight: '800', color: colors.muted, letterSpacing: '0.05em' }}>MAKSYMALNA GŁĘBOKOŚĆ</label>
-            <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>{maxDepth}</span>
+            <label style={{ fontSize: '11px', fontWeight: '600', color: colors.muted, letterSpacing: '0.04em' }}>LICZBA DRZEW (S)</label>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>{nTrees}</span>
           </div>
-          <input type="range" min="1" max="100" value={maxDepth} onChange={e => setMaxDepth(e.target.value)} style={{ marginTop: '10px', width: '100%' }} />
+          <input type="range" min="1" max="100" value={nTrees} onChange={e => setNTrees(parseInt(e.target.value, 10))} style={{ marginTop: '10px', width: '100%' }} />
         </div>
 
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <label style={{ fontSize: '11px', fontWeight: '800', color: colors.muted, letterSpacing: '0.05em' }}>PROPORCJA PODZIAŁU (SPLIT)</label>
-            <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>{splitRatio}%</span>
+            <label style={{ fontSize: '11px', fontWeight: '600', color: colors.muted, letterSpacing: '0.04em' }}>MAKSYMALNA GŁĘBOKOŚĆ</label>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>{maxDepth}</span>
           </div>
-          <input type="range" min="1" max="100" value={splitRatio} onChange={e => setSplitRatio(e.target.value)} style={{ marginTop: '10px', width: '100%' }} />
+          <input type="range" min="1" max="30" value={maxDepth} onChange={e => setMaxDepth(parseInt(e.target.value, 10))} style={{ marginTop: '10px', width: '100%' }} />
+        </div>
+
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label style={{ fontSize: '11px', fontWeight: '600', color: colors.muted, letterSpacing: '0.04em' }}>PODZIAŁ (TRAIN / TEST)</label>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>{splitRatio}% / {100 - splitRatio}%</span>
+          </div>
+          <input type="range" min="50" max="90" step="5" value={splitRatio} onChange={e => setSplitRatio(parseInt(e.target.value, 10))} style={{ marginTop: '10px', width: '100%' }} />
         </div>
 
         <button
           onClick={runIntegratedAnalysis}
           disabled={isLoading || !selectedFile || !selectedAttrToRemove}
           style={{
-            width: '100%', padding: '16px', borderRadius: '10px', backgroundColor: colors.custom, color: colors.bg,
-            border: 'none', fontWeight: '800', fontSize: '13px', cursor: 'pointer', marginTop: '14px',
-            transition: 'all 0.2s ease', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)', letterSpacing: '0.02em'
+            width: '100%', padding: '16px', borderRadius: '12px', backgroundColor: colors.custom, color: colors.bg,
+            border: 'none', fontWeight: '700', fontSize: '13px', cursor: 'pointer', marginTop: '8px',
+            transition: 'all 0.2s ease', boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)', letterSpacing: '0.02em'
           }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
         >
           {isLoading ? `PRZETWARZANIE (${timer}s)...` : `URUCHOM POTOK DLA k = ${numAttrsToRemove}`}
         </button>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '12px', width: '100%', gap: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 'auto', width: '100%', paddingTop: '20px' }}>
         <img
           src="/logo1.png"
-          alt="Prometheus Graphic Balance"
+          alt="Prometheus Logo"
           onClick={() => setSecretEnabled(!secretEnabled)}
           style={{
-            maxWidth: '85%',
-            maxHeight: '180px',
-            opacity: secretEnabled ? 0.55 : 0.25,
-            filter: secretEnabled ? `drop-shadow(0 0 16px ${colors.custom}80)` : `drop-shadow(0 0 12px ${colors.custom}40)`,
+            maxWidth: '70%',
+            maxHeight: '130px',
+            opacity: secretEnabled ? 0.7 : 0.25,
+            filter: secretEnabled ? `drop-shadow(0 0 16px ${colors.custom}80)` : 'none',
             cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            transform: secretEnabled ? 'scale(1.04)' : 'scale(1)'
+            transition: 'all 0.3s ease'
           }}
-          onMouseEnter={(e) => { if (!secretEnabled) e.currentTarget.style.opacity = '0.55'; }}
-          onMouseLeave={(e) => { if (!secretEnabled) e.currentTarget.style.opacity = '0.25'; }}
         />
       </div>
     </aside>

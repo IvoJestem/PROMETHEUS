@@ -1,13 +1,13 @@
 export const colors = {
-  bg: '#09090b',
-  card: '#141417',
-  cardSecondary: '#1c1c21',
-  border: '#27272a',
-  text: '#f4f4f5',
-  muted: '#a1a1aa',
-  baseline: '#fbbf24',
-  gd: '#a855f7',
+  bg: '#070709',
+  card: '#111115',
+  cardSecondary: '#18181d',
+  border: '#22222b',
+  text: '#ededed',
+  muted: '#8e8e99',
+  baseline: '#f59e0b',
+  gd: '#8b5cf6',
   mcd: '#06b6d4',
   custom: '#10b981',
-  danger: '#ef4444'
+  danger: '#f43f5e'
 };

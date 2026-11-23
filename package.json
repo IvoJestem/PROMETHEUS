@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "start": "concurrently \"npm run dev\" \"python src/scripts/main.py\"",
     "lint": "eslint .",
     "preview": "vite preview"

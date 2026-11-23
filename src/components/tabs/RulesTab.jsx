@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { BookOpen, CheckCircle2, Filter, Sparkles } from 'lucide-react';
 import { colors } from '../../constants/theme';
 import { int, generateRuleSentence } from '../../utils/helpers';
 import { RulePill } from '../common/UIComponents';
@@ -10,57 +11,103 @@ export default function RulesTab({
   expandedGroups,
   setExpandedGroups,
   nTrees,
-  triggerEtFlight
+  triggerEtFlight,
 }) {
   const activeMethodData = integratedResults?.results?.[selectedRulesMethod];
-  
-  const rawRulesList = activeMethodData?.Reguly_Globalne || activeMethodData?.algorithmAResults || [];
+  const rawRulesList =
+    activeMethodData?.Reguly_Globalne ||
+    activeMethodData?.algorithmAResults ||
+    [];
 
-  const rulesList = rawRulesList.map((r, idx) => {
-    const normalizedConditions = (r.conditions || []).map(c => ({
-      attribute: c.attribute,
-      op: c.op || '==',
-      val: c.val !== undefined ? c.val : c.value
-    }));
+  const rulesList = useMemo(() => {
+    return rawRulesList.map((r, idx) => {
+      const normalizedConditions = (r.conditions || []).map((c) => ({
+        attribute: c.attribute,
+        op: c.op || '=',
+        val: c.val !== undefined ? c.val : c.value,
+      }));
 
-    return {
-      ...r,
-      conditions: normalizedConditions,
-      supportCount: r.supportCount ?? 1,
-      isBestRule: r.isBestRule !== undefined ? r.isBestRule : (idx === 0)
-    };
-  });
+      return {
+        ...r,
+        conditions: normalizedConditions,
+        supportCount: r.supportCount ?? 1,
+        isBestRule: r.isBestRule !== undefined ? r.isBestRule : idx === 0,
+      };
+    });
+  }, [rawRulesList]);
 
   const getMethodColor = (m) => {
-    if (m === "BASELINE") return colors.baseline;
-    if (m === "GD") return colors.gd;
-    if (m === "MCD") return colors.mcd;
+    if (m === 'BASELINE') return colors.baseline;
+    if (m === 'GD') return colors.gd;
+    if (m === 'MCD') return colors.mcd;
     return colors.custom;
   };
 
   const activeAccent = getMethodColor(selectedRulesMethod);
-  const toggleGroup = (sup) => setExpandedGroups(p => ({ ...p, [sup]: !p[sup] }));
+  const toggleGroup = (sup) =>
+    setExpandedGroups((p) => ({ ...p, [sup]: !p[sup] }));
 
-  const maxTrees = int(nTrees);
+  const maxTrees = Math.max(1, int(nTrees));
+  const uniqueSupports = useMemo(
+    () =>
+      Array.from(new Set(rulesList.map((r) => r.supportCount))).sort(
+        (a, b) => b - a
+      ),
+    [rulesList]
+  );
+
+  const topSupport = uniqueSupports.length > 0 ? uniqueSupports[0] : 0;
+  const avgConditions =
+    rulesList.length > 0
+      ? (
+          rulesList.reduce((acc, r) => acc + r.conditions.length, 0) /
+          rulesList.length
+        ).toFixed(1)
+      : '0.0';
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div
+        style={{
+          backgroundColor: 'rgba(20, 20, 23, 0.85)',
+          border: `1px solid ${colors.border}`,
+          borderRadius: '16px',
+          padding: '22px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px',
+        }}
+      >
         <div>
-          <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '900', letterSpacing: '-0.02em' }}>
-            Baza Reguł Wyjaśnialnych (PROMETHEUS Engine)
-          </h3>
-          <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: colors.muted }}>
-            Wybierz technikę usuwania niespójności, aby przeanalizować powtarzalność i semantykę reguł globalnych wyindukowanych przez Algorytm A.
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <BookOpen size={18} color={activeAccent} />
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>
+              Baza Reguł Wyjaśnialnych (Algorytm A)
+            </h3>
+          </div>
+          <p style={{ margin: '5px 0 0 0', fontSize: '12px', color: colors.muted }}>
+            Porównuj powtarzalność i semantykę reguł globalnych pomiędzy wariantami redukcji niespójności.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '6px', backgroundColor: '#141417', padding: '6px', borderRadius: '10px', border: `1px solid ${colors.border}` }}>
+
+        <div
+          style={{
+            display: 'flex',
+            gap: '4px',
+            backgroundColor: colors.bg,
+            padding: '4px',
+            borderRadius: '11px',
+            border: `1px solid ${colors.border}`,
+          }}
+        >
           {[
-            { key: "BASELINE", label: "B.C", color: colors.baseline },
-            { key: "GD", label: "G.D", color: colors.gd },
-            { key: "MCD", label: "M.C.D", color: colors.mcd },
-            { key: "CUSTOM", label: "E.T", color: colors.custom }
-          ].map(m => {
+            { key: 'BASELINE', label: 'Baseline', color: colors.baseline },
+            { key: 'GD', label: 'GD', color: colors.gd },
+            { key: 'MCD', label: 'MCD', color: colors.mcd },
+            { key: 'CUSTOM', label: 'Entropy (ET)', color: colors.custom },
+          ].map((m) => {
             const isSelected = selectedRulesMethod === m.key;
             return (
               <button
@@ -68,13 +115,18 @@ export default function RulesTab({
                 onClick={() => {
                   setSelectedRulesMethod(m.key);
                   setExpandedGroups({});
-                  if (m.key === "CUSTOM" && triggerEtFlight) triggerEtFlight();
+                  if (m.key === 'CUSTOM' && triggerEtFlight) triggerEtFlight();
                 }}
                 style={{
-                  padding: '8px 14px', borderRadius: '7px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', border: 'none',
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  border: 'none',
                   backgroundColor: isSelected ? m.color : 'transparent',
                   color: isSelected ? colors.bg : colors.muted,
-                  transition: 'all 0.15s ease'
+                  transition: 'all 0.15s ease',
                 }}
               >
                 {m.label}
@@ -84,65 +136,251 @@ export default function RulesTab({
         </div>
       </div>
 
-      {rulesList.length > 0 ? (
-        Array.from({ length: maxTrees }, (_, i) => maxTrees - i).map(sup => {
-          const group = rulesList.filter(r => r.supportCount === sup);
-          if (group.length === 0) return null;
-          const isOpen = expandedGroups[sup];
+      <div
+        className="num-tabular"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+          gap: '14px',
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: 'rgba(20, 20, 23, 0.85)',
+            border: `1px solid ${colors.border}`,
+            borderRadius: '12px',
+            padding: '14px 16px',
+          }}
+        >
+          <div style={{ fontSize: '11px', color: colors.muted }}>REGUŁY GLOBALNE</div>
+          <div style={{ fontSize: '20px', fontWeight: 900, color: activeAccent, marginTop: '4px' }}>
+            {rulesList.length}
+          </div>
+        </div>
 
-          return (
-            <div key={sup} style={{ marginBottom: '10px', border: `1px solid ${isOpen ? activeAccent : colors.border}`, borderRadius: '10px', overflow: 'hidden' }}>
+        <div
+          style={{
+            backgroundColor: 'rgba(20, 20, 23, 0.85)',
+            border: `1px solid ${colors.border}`,
+            borderRadius: '12px',
+            padding: '14px 16px',
+          }}
+        >
+          <div style={{ fontSize: '11px', color: colors.muted }}>MAKS. POPARCIE W LESIE</div>
+          <div style={{ fontSize: '20px', fontWeight: 900, color: colors.text, marginTop: '4px' }}>
+            {topSupport} / {maxTrees}
+          </div>
+        </div>
+
+        <div
+          style={{
+            backgroundColor: 'rgba(20, 20, 23, 0.85)',
+            border: `1px solid ${colors.border}`,
+            borderRadius: '12px',
+            padding: '14px 16px',
+          }}
+        >
+          <div style={{ fontSize: '11px', color: colors.muted }}>ŚR. LICZBA WARUNKÓW</div>
+          <div style={{ fontSize: '20px', fontWeight: 900, color: colors.text, marginTop: '4px' }}>
+            {avgConditions}
+          </div>
+        </div>
+
+        <div
+          style={{
+            backgroundColor: 'rgba(20, 20, 23, 0.85)',
+            border: `1px solid ${colors.border}`,
+            borderRadius: '12px',
+            padding: '14px 16px',
+          }}
+        >
+          <div style={{ fontSize: '11px', color: colors.muted }}>POZIOMY POPARCIA</div>
+          <div style={{ fontSize: '20px', fontWeight: 900, color: colors.text, marginTop: '4px' }}>
+            {uniqueSupports.length}
+          </div>
+        </div>
+      </div>
+
+      {uniqueSupports.length > 0 ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {uniqueSupports.map((sup) => {
+            const group = rulesList.filter((r) => r.supportCount === sup);
+            if (group.length === 0) return null;
+            const isOpen = expandedGroups[sup];
+            const supportPct = Math.min(100, Math.round((sup / maxTrees) * 100));
+
+            return (
               <div
-                onClick={() => toggleGroup(sup)}
-                style={{ padding: '14px 20px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', backgroundColor: colors.card, alignItems: 'center', userSelect: 'none' }}
+                key={sup}
+                style={{
+                  border: `1px solid ${isOpen ? activeAccent : colors.border}`,
+                  borderRadius: '14px',
+                  overflow: 'hidden',
+                  backgroundColor: 'rgba(20, 20, 23, 0.85)',
+                }}
               >
-                <span style={{ fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: activeAccent }}></span>
-                  Poziom Poparcia Przez Drzewa: {sup} z {maxTrees}
-                  {sup === 1 ? ' <Lokalny szum logiczny odrzucony w agregacji>' : ''}
-                </span>
-                <span style={{ color: colors.muted, fontSize: '12px', fontWeight: '600' }}>
-                  {group.length} {group.length === 1 ? 'reguła' : 'reguł'} {isOpen ? '▲' : '▼'}
-                </span>
-              </div>
-              {isOpen && (
-                <div style={{ padding: '20px', backgroundColor: '#0c0c0e', borderTop: `1px solid ${colors.border}` }}>
-                  {group.slice(0, 40).map((r, i) => (
-                    <div key={i} style={{
-                      fontSize: '13px', marginBottom: '12px', padding: '16px', backgroundColor: colors.card,
-                      border: r.isBestRule ? `1px dashed ${activeAccent}` : `1px solid ${colors.border}`, borderRadius: '8px'
-                    }}>
-                      {r.isBestRule && (
-                        <div style={{ color: activeAccent, fontWeight: '900', marginBottom: '12px', fontSize: '11px', letterSpacing: '0.05em' }}>
-                          OPTYMALNY WZORZEC GLOBALNY (NAJWYŻSZE WSPARCIE W LESIE)
-                        </div>
-                      )}
-                      <span style={{ color: colors.muted, fontWeight: '700' }}>IF </span> 
-                      {r.conditions && r.conditions.length > 0 ? (
-                        r.conditions.map((c, ci) => (
-                          <RulePill key={ci} attr={c.attribute} op={c.op} val={c.val} accentColor={activeAccent} />
-                        ))
-                      ) : (
-                        <span style={{ color: colors.muted, fontStyle: 'italic' }}>Brak warunków (Reguła domyślna)</span>
-                      )}
-                      <span style={{ color: colors.muted, fontWeight: '700' }}> THEN </span> 
-                      <span style={{ color: colors.custom, fontWeight: 'bold' }}>{String(r.decision)}</span>
-                      
-                      {typeof generateRuleSentence === 'function' && (
-                        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px dashed ${colors.border}`, color: colors.muted, fontStyle: 'italic', fontSize: '11px', lineHeight: '1.6' }}>
-                          {generateRuleSentence(r.conditions, r.decision)}
-                        </div>
-                      )}
+                <div
+                  onClick={() => toggleGroup(sup)}
+                  style={{
+                    padding: '14px 20px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '16px',
+                    userSelect: 'none',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+                    <Filter size={14} color={activeAccent} />
+                    <span className="num-tabular" style={{ fontWeight: 700, fontSize: '13px' }}>
+                      Wsparcie: {sup} z {maxTrees} drzew ({supportPct}%)
+                    </span>
+                    <div
+                      style={{
+                        width: '90px',
+                        height: '6px',
+                        borderRadius: '999px',
+                        backgroundColor: colors.bg,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${supportPct}%`,
+                          height: '100%',
+                          backgroundColor: activeAccent,
+                        }}
+                      />
                     </div>
-                  ))}
+                  </div>
+
+                  <span className="num-tabular" style={{ color: colors.muted, fontSize: '12px', fontWeight: 700 }}>
+                    {group.length} {group.length === 1 ? 'reguła' : 'reguł'} {isOpen ? '▲' : '▼'}
+                  </span>
                 </div>
-              )}
-            </div>
-          );
-        })
+
+                {isOpen && (
+                  <div
+                    style={{
+                      padding: '18px 20px',
+                      backgroundColor: colors.bg,
+                      borderTop: `1px solid ${colors.border}`,
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+                      gap: '14px',
+                    }}
+                  >
+                    {group.slice(0, 40).map((r, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          fontSize: '13px',
+                          padding: '16px',
+                          backgroundColor: colors.card,
+                          border: r.isBestRule
+                            ? `1px solid ${activeAccent}`
+                            : `1px solid ${colors.border}`,
+                          borderRadius: '12px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          gap: '10px',
+                        }}
+                      >
+                        <div>
+                          {r.isBestRule && (
+                            <div
+                              style={{
+                                color: activeAccent,
+                                fontWeight: 800,
+                                marginBottom: '10px',
+                                fontSize: '10.5px',
+                                letterSpacing: '0.05em',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                              }}
+                            >
+                              <Sparkles size={12} /> NAJWYŻSZE WSPARCIE W LESIE
+                            </div>
+                          )}
+
+                          <div style={{ lineHeight: 1.7 }}>
+                            <span style={{ color: colors.muted, fontWeight: 800, fontSize: '11px' }}>
+                              IF{' '}
+                            </span>
+                            {r.conditions && r.conditions.length > 0 ? (
+                              r.conditions.map((c, ci) => (
+                                <RulePill
+                                  key={ci}
+                                  attr={c.attribute}
+                                  op={c.op}
+                                  val={c.val}
+                                  accentColor={activeAccent}
+                                />
+                              ))
+                            ) : (
+                              <span style={{ color: colors.muted, fontStyle: 'italic' }}>
+                                Brak warunków (reguła domyślna)
+                              </span>
+                            )}
+                            <span style={{ color: colors.muted, fontWeight: 800, fontSize: '11px', marginLeft: '4px' }}>
+                              THEN{' '}
+                            </span>
+                            <span
+                              style={{
+                                color: colors.custom,
+                                fontWeight: 800,
+                                padding: '2px 8px',
+                                borderRadius: '6px',
+                                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                              }}
+                            >
+                              {String(r.decision)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {typeof generateRuleSentence === 'function' && (
+                          <div
+                            style={{
+                              paddingTop: '10px',
+                              borderTop: `1px dashed ${colors.border}`,
+                              color: colors.muted,
+                              fontStyle: 'italic',
+                              fontSize: '11.5px',
+                              lineHeight: 1.5,
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '6px',
+                            }}
+                          >
+                            <CheckCircle2 size={13} color={activeAccent} style={{ flexShrink: 0, marginTop: '2px' }} />
+                            <span>{generateRuleSentence(r.conditions, r.decision)}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       ) : (
-        <div style={{ padding: '32px', textAlign: 'center', color: colors.muted, border: `2px dashed ${colors.border}`, borderRadius: '12px', fontSize: '13px', backgroundColor: colors.card }}>
-          Wszystkie wygenerowane reguły dla tego wariantu zostały odrzucone przez próg selekcji wsparcia.
+        <div
+          style={{
+            padding: '36px',
+            textAlign: 'center',
+            color: colors.muted,
+            border: `1px dashed ${colors.border}`,
+            borderRadius: '14px',
+            fontSize: '13px',
+            backgroundColor: 'rgba(20, 20, 23, 0.75)',
+          }}
+        >
+          Brak reguł globalnych dla wybranego wariantu i parametrów.
         </div>
       )}
     </div>

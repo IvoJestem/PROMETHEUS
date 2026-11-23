@@ -1,0 +1,2817 @@
+﻿========================================
+PLIK: eslint.config.js
+========================================
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+  },
+])
+
+
+
+========================================
+PLIK: index.html
+========================================
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo1.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PROMETHEUS</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
+
+
+========================================
+PLIK: package.json
+========================================
+{
+  "name": "magi",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "concurrently \"npm run dev\" \"python src/scripts/main.py\"",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lucide-react": "^0.554.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@tailwindcss/postcss": "^4.1.17",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.4.22",
+    "concurrently": "^10.0.5",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17",
+    "vite": "^7.2.4"
+  }
+}
+
+
+
+========================================
+PLIK: postcss.config.js
+========================================
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {}, 
+    autoprefixer: {},
+  },
+}
+
+
+========================================
+PLIK: README.md
+========================================
+# Prometheus: System Analizy i Usuwania Niespójności w Regułach Decyzyjnych
+
+Projekt badawczy i aplikacyjny (praca magisterska) realizujący zaawansowany potok analityczny dla systemów decyzyjnych w oparciu o teorię zbiorów przybliżonych (ang. *Rough Sets Theory*) oraz wyjaśnialną sztuczną inteligencję (XAI). System umożliwia wykrywanie niespójności, ekstrakcję reguł z rozproszonych lasów losowych (algorytm ID3) oraz ich globalną optymalizację przy użyciu Algorytmu A.
+
+## 🛠 Stos technologiczny (Tech Stack)
+* **Frontend:** React 19, Vite, Tailwind CSS, Lucide Icons
+* **Backend:** Python, FastAPI, Pandas, NumPy, Scikit-learn
+* **Zarządzanie procesami:** Concurrently (zintegrowany start pełnego stosu jednym poleceniem)
+
+## 🚀 Szybki start (Quick Start)
+
+### Wymagania wstępne
+* Node.js (wersja 18+)
+* Python (wersja 3.10+)
+
+### Instalacja i uruchomienie krok po kroku
+1. Sklonuj repozytorium:
+   ```bash
+   git clone https://github.com/IvoJestem/PROMETHEUS.git
+   cd magi
+   ```
+2.  Zainstaluj zależności frontendu:
+      ```bash
+      npm install
+      ```
+
+3. Zainstaluj zależności backendu (zalecane wirtualne środowisko Python):
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Uruchom cały system (frontend + backend równolegle za pomocą skonfigurowanego skryptu):
+   ```bash
+   npm start
+   ```
+
+5. Otwórz przeglądarkę i przejdź pod adres: `http://localhost:5173`
+
+## 📂 Architektura i struktura projektu
+* `main.py` - główny serwer API (FastAPI) obsługujący potoki analityczne i eksperymenty badawcze.
+* `analytics.py` - moduł implementujący warianty rozwiązywania niespójności:
+  * **GD** (*Generalized Decision*) - zachowanie uogólnionych konfliktów decyzyjnych,
+  * **MCD** (*Most Common Decision*) - decyzja większościowa (dominanta),
+  * **CUSTOM / ET** (*Entropy Threshold*) - filtracja szumu informacyjnego za pomocą progu entropii ($H \le 0.85$).
+* `xai_service.py` - silnik drzew i lasów losowych ID3, ekstrakcja reguł oraz Algorytm A.
+* `ResearchTab.py` - moduł symulacji siatki badawczej i oceny modeli metodą walidacji.
+* `src/` - komponenty interfejsu użytkownika (pulpit analityczny, macierz podatności, eksplorator reguł, raporty).
+* `public/data/` - lokalny katalog przeznaczony na eksperymenty z plikami CSV (katalog pomijany w zdalnym repozytorium ze względów licencyjnych).
+* `src/components/EtEasterEgg.jsx` - interaktywny komponent wizualny z animacją wektorową SVG.
+* `src/utils/helpers.js` - moduł pomocniczy do konwersji reguł logicznych na czytelne komunikaty tekstowe.
+* `src/constants/theme.ts` - spójna paleta kolorów interfejsu (Dark UI).
+
+## 📊 Źródła danych (Data Sources)
+Pliki CSV wykorzystywane w procesie badawczym (`balance-scale.csv`, `breast-cancer.csv`, `cars.csv`,`house-votes.csv`, `lymphography.csv`, `mushroom.csv`, `nursery.csv`, `tic-tac-toe.csv`) służą wyłącznie do celów naukowych i weryfikacji algorytmów. Zbiory te pochodzą z ogólnodostępnego **UCI Machine Learning Repository**. 
+
+Ze względu na restrykcje licencyjne pierwotnych autorów, surowe pliki danych nie są dołączone do publicznego repozytorium kodu, należy umieścić je lokalnie w folderze `public/data/` w celu uruchomienia lokalnych analiz.
+
+## 📄 Licencja
+Projekt udostępniany jest na licencji **MIT**. Szczegółowe informacje znajdują się w pliku `LICENSE`.
+
+
+========================================
+PLIK: tailwind.config.js
+========================================
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+
+
+========================================
+PLIK: vite.config.js
+========================================
+// vite.config.js / vite.config.ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
+})
+
+
+========================================
+PLIK: src\App.css
+========================================
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+
+
+========================================
+PLIK: src\App.jsx
+========================================
+import React, { useState, useRef, useEffect } from 'react';
+import { colors } from './constants/theme';
+import Sidebar from './components/Sidebar';
+import MatrixTab from './components/tabs/MatrixTab';
+import MetricsTab from './components/tabs/MetricsTab';
+import RulesTab from './components/tabs/RulesTab';
+import ResearchTab from './components/tabs/ResearchTab';
+import EtEasterEgg from './components/EtEasterEgg';
+
+export default function PrometheusDashboard() {
+  const [inconsistencyMatrix, setInconsistencyMatrix] = useState(null);
+  const [isMatrixLoading, setIsMatrixLoading] = useState(false);
+  const [availableAttributes, setAvailableAttributes] = useState([]);
+  const [selectedAttrToRemove, setSelectedAttrToRemove] = useState("");
+  const [numAttrsToRemove, setNumAttrsToRemove] = useState(1);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedTarget, setSelectedTarget] = useState("");
+  const [integratedResults, setIntegratedResults] = useState(null);
+  
+  const [splitRatio, setSplitRatio] = useState(70);
+  const [nTrees, setNTrees] = useState(30);
+  const [maxDepth, setMaxDepth] = useState(10);
+  const [entropyThreshold, setEntropyThreshold] = useState(0.75);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("METRICS");
+  const [selectedRulesMethod, setSelectedRulesMethod] = useState("CUSTOM");
+  const [expandedGroups, setExpandedGroups] = useState({});
+  const [timer, setTimer] = useState("0.00");
+  const timerRef = useRef(null);
+  const [secretEnabled, setSecretEnabled] = useState(false);
+  const [etFlying, setEtFlying] = useState(false);
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
+
+  const triggerEtFlight = () => {
+    if (!secretEnabled || etFlying) return;
+    setEtFlying(true);
+    setTimeout(() => setEtFlying(false), 4500);
+  };
+
+  const runIntegratedAnalysis = async () => {
+    if (!selectedFile || !selectedAttrToRemove) {
+      alert("Wybierz plik i liczbę atrybutów do usunięcia!");
+      return;
+    }
+    
+    setIntegratedResults(null);
+    setTimer("0.00");
+    const start = Date.now();
+    timerRef.current = setInterval(() => setTimer(((Date.now() - start) / 1000).toFixed(2)), 100);
+    setIsLoading(true);
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("splitRatio", splitRatio);
+    formData.append("targetAttr", selectedTarget);
+    formData.append("nTrees", nTrees);
+    formData.append("maxDepth", maxDepth);
+    formData.append("attrToRemove", selectedAttrToRemove);
+    formData.append("entropyThreshold", entropyThreshold);
+
+    try {
+      const response = await fetch("http://localhost:8000/analyze-integrated", { method: "POST", body: formData });
+      const stdData = await response.json();
+      
+      if (stdData.status === "success") {
+        setIntegratedResults(stdData);
+        setSelectedRulesMethod("CUSTOM");
+        setExpandedGroups({});
+        setActiveTab("MATRIX");
+        
+        setIsLoading(false);
+        clearInterval(timerRef.current);
+
+        const resResponse = await fetch("http://localhost:8000/run-research-experiment", { method: "POST", body: formData });
+        
+        if (resResponse.ok) {
+          const resData = await resResponse.json();
+
+          setIntegratedResults(prevData => ({
+            ...prevData,
+            research_grid: resData.results
+          }));
+
+          const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(resData, null, 2))}`;
+          const downloadAnchor = document.createElement('a');
+          downloadAnchor.setAttribute("href", jsonString);
+          downloadAnchor.setAttribute("download", `badania_PROMETHEUS_k${numAttrsToRemove}_tau${entropyThreshold}_S10-30-50.json`);
+          document.body.appendChild(downloadAnchor);
+          downloadAnchor.click();
+          downloadAnchor.remove();
+        }
+      }
+    } catch (error) {
+      console.error("Błąd potoku PROMETHEUS:", error);
+      alert("Błąd połączenia z API (sprawdź terminal Pythona).");
+    } finally {
+      setIsLoading(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+  };
+
+  return (
+    <div style={{ backgroundColor: colors.bg, color: colors.text, minHeight: '100vh', fontFamily: "'Inter', sans-serif", display: 'flex', overflow: 'hidden', position: 'relative' }}>
+      <style>{`
+        input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type="range"]:focus { outline: none; }
+        input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #27272a; border-radius: 4px; border: none; }
+        input[type="range"]::-webkit-slider-thumb { height: 16px; width: 16px; border-radius: 50%; background: #10b981; cursor: pointer; -webkit-appearance: none; margin-top: -5px; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); transition: transform 0.1s ease; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); background: #34d399; }
+        input[type="range"]::-moz-range-track { width: 100%; height: 6px; cursor: pointer; background: #27272a; border-radius: 4px; }
+        input[type="range"]::-moz-range-thumb { height: 16px; width: 16px; border-radius: 50%; background: #10b981; cursor: pointer; border: none; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+        @keyframes pulseSecret { 0%, 100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 2px #10b981); } 50% { transform: scale(1.4); opacity: 0.7; filter: drop-shadow(0 0 8px #10b981); } }
+      `}</style>
+      <EtEasterEgg etFlying={etFlying} />
+      <Sidebar
+        selectedFile={selectedFile} setSelectedFile={setSelectedFile}
+        setSelectedTarget={setSelectedTarget} setIntegratedResults={setIntegratedResults}
+        setInconsistencyMatrix={setInconsistencyMatrix} setIsMatrixLoading={setIsMatrixLoading}
+        availableAttributes={availableAttributes} setAvailableAttributes={setAvailableAttributes}
+        selectedAttrToRemove={selectedAttrToRemove} setSelectedAttrToRemove={setSelectedAttrToRemove}
+        numAttrsToRemove={numAttrsToRemove} setNumAttrsToRemove={setNumAttrsToRemove}
+        nTrees={nTrees} setNTrees={setNTrees}
+        maxDepth={maxDepth} setMaxDepth={setMaxDepth}
+        splitRatio={splitRatio} setSplitRatio={setSplitRatio}
+        entropyThreshold={entropyThreshold} setEntropyThreshold={setEntropyThreshold}
+        runIntegratedAnalysis={runIntegratedAnalysis} isLoading={isLoading} timer={timer}
+        secretEnabled={secretEnabled} setSecretEnabled={setSecretEnabled}
+      />
+
+      <main style={{ flex: 1, padding: '40px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '24px', zIndex: 5 }}>
+        <div style={{ 
+          display: 'flex', 
+          backgroundColor: colors.card, 
+          border: `1px solid ${colors.border}`, 
+          borderRadius: '10px', 
+          padding: '4px', 
+          marginBottom: '28px', 
+          width: '100%' 
+        }}>
+          {[
+            { id: "MATRIX", label: "Macierz Analizy Wpływu Atrybutów" },
+            { id: "METRICS", label: "Panel Metryk i Struktur" },
+            { id: "RULES", label: "Eksplorator Reguł Globalnych" },
+            { id: "RESEARCH", label: "Raport Badawczy (Siatka S)" }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                flex: 1, 
+                padding: '12px 8px', 
+                fontSize: '13px', 
+                fontWeight: '800', 
+                cursor: 'pointer', 
+                border: 'none', 
+                borderRadius: '7px',
+                backgroundColor: activeTab === tab.id ? '#1c1c21' : 'transparent',
+                color: activeTab === tab.id ? colors.custom : colors.muted,
+                borderBottom: activeTab === tab.id ? `2px solid ${colors.custom}` : '2px solid transparent',
+                transition: 'all 0.2s ease', 
+                letterSpacing: '0.03em',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === "MATRIX" && (
+          <MatrixTab
+            isMatrixLoading={isMatrixLoading}
+            inconsistencyMatrix={inconsistencyMatrix}
+            selectedAttrToRemove={selectedAttrToRemove}
+            setSelectedAttrToRemove={setSelectedAttrToRemove}
+            numAttrsToRemove={numAttrsToRemove}
+            setNumAttrsToRemove={setNumAttrsToRemove}
+            integratedResults={integratedResults}
+          />
+        )}
+
+        {integratedResults ? (
+          <>
+            {activeTab === "METRICS" && (
+              <MetricsTab integratedResults={integratedResults} />
+            )}
+
+            {activeTab === "RULES" && (
+              <RulesTab
+                integratedResults={integratedResults}
+                selectedRulesMethod={selectedRulesMethod}
+                setSelectedRulesMethod={setSelectedRulesMethod}
+                expandedGroups={expandedGroups}
+                setExpandedGroups={setExpandedGroups}
+                nTrees={nTrees}
+                triggerEtFlight={triggerEtFlight}
+              />
+            )}
+
+            {activeTab === "RESEARCH" && (
+              <ResearchTab integratedResults={integratedResults} />
+            )}
+          </>
+        ) : activeTab !== "MATRIX" && (
+          <div style={{ 
+            height: '70vh', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            border: `2px dashed ${colors.border}`, 
+            borderRadius: '20px', 
+            color: colors.muted, 
+            fontSize: '14px',
+            textAlign: 'center',
+            padding: '20px'
+          }}>
+            Skonfiguruj liczbę usuwanych cech (k) w panelu po lewej i kliknij <b>„URUCHOM POTOK DLA k = {numAttrsToRemove}”</b>.
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
+
+
+========================================
+PLIK: src\index.css
+========================================
+
+
+========================================
+PLIK: src\main.jsx
+========================================
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+
+
+
+========================================
+PLIK: src\components\EtEasterEgg.jsx
+========================================
+import React from 'react';
+
+export default function EtEasterEgg({ etFlying }) {
+  if (!etFlying) return null;
+
+  return (
+    <>
+      <style>{`
+        @keyframes flyET {
+          0% { transform: translate(-20vw, 30vh) scale(0.6) rotate(5deg); opacity: 0; }
+          10% { opacity: 1; }
+          50% { transform: translate(50vw, 12vh) scale(1.1) rotate(0deg); }
+          90% { opacity: 1; }
+          100% { transform: translate(110vw, 40vh) scale(0.7) rotate(-5deg); opacity: 0; }
+        }
+      `}</style>
+
+      <div style={{ 
+        position: 'fixed', 
+        top: 0,
+        left: 0,
+        zIndex: 9999, 
+        pointerEvents: 'none', 
+        animation: 'flyET 4.5s linear forwards', 
+        width: '160px', 
+        height: '130px' 
+      }}>
+        <svg viewBox="0 0 100 75" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%', filter: 'drop-shadow(0 0 16px rgba(254, 252, 232, 0.4))' }}>
+          <defs>
+            <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+              <stop offset="0%" stopColor="#fefce8" stopOpacity="0.4" />
+              <stop offset="70%" stopColor="#fef3c7" stopOpacity="0.1" />
+              <stop offset="100%" stopColor="#09090b" stopOpacity="0.0" />
+            </radialGradient>
+            <linearGradient id="bikeFrame" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#b91c1c" />
+              <stop offset="100%" stopColor="#78350f" />
+            </linearGradient>
+            <linearGradient id="etSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#92400e" />
+              <stop offset="100%" stopColor="#78350f" />
+            </linearGradient>
+          </defs>
+
+          <circle cx="50" cy="35" r="30" fill="url(#moonGlow)" stroke="rgba(254, 252, 232, 0.15)" strokeWidth="1" strokeDasharray="5 3" />
+
+          <circle cx="25" cy="55" r="11.5" stroke="#ef4444" strokeWidth="2.5" fill="#1c1c21" />
+          <circle cx="25" cy="55" r="7" stroke="rgba(244, 244, 245, 0.3)" strokeWidth="1" fill="none" />
+          <circle cx="75" cy="55" r="11.5" stroke="#ef4444" strokeWidth="2.5" fill="#1c1c21" />
+          <circle cx="75" cy="55" r="7" stroke="rgba(244, 244, 245, 0.3)" strokeWidth="1" fill="none" />
+
+          <path d="M 25 55 L 46 55 L 64 36 L 75 55 M 46 55 L 55 30 L 64 36 M 55 30 L 36 38 L 25 55" stroke="url(#bikeFrame)" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M 64 36 L 61 19 L 56 21" stroke="#a1a1aa" strokeWidth="2.8" strokeLinecap="round" />
+
+          <rect x="63" y="16" width="16" height="12" rx="2" fill="rgba(244, 244, 245, 0.1)" stroke="#e4e4e7" strokeWidth="1.5" />
+          <line x1="69" y1="16" x2="69" y2="28" stroke="rgba(244, 244, 245, 0.2)" strokeWidth="1" />
+          <line x1="74" y1="16" x2="74" y2="28" stroke="rgba(244, 244, 245, 0.2)" strokeWidth="1" />
+
+          <path d="M 67 15 C 65 6, 77 6, 75 15 Z" fill="#fafafa" stroke="#d1d5db" strokeWidth="0.5" />
+          <circle cx="71" cy="12" r="4.5" fill="url(#etSkin)" />
+          <circle cx="70" cy="11.5" r="1.2" fill="#fafafa" />
+          <circle cx="70" cy="11.5" r="0.5" fill="#09090b" />
+          <path d="M 69 16 C 69 11, 74 11, 74 16 Z" fill="#f4f4f5" stroke="#e4e4e7" strokeWidth="0.5" />
+
+          <circle cx="47" cy="21" r="5" fill="#ef4444" stroke="#fafafa" strokeWidth="1.5" />
+          <path d="M 41 28 C 41 21, 55 21, 55 28 L 52 40 L 43 40 Z" fill="#ef4444" stroke="#fafafa" strokeWidth="1.5" />
+          <path d="M 48 28 L 58 23" stroke="#f4f4f5" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </div>
+    </>
+  );
+}
+
+
+========================================
+PLIK: src\components\Sidebar.jsx
+========================================
+import React from 'react';
+import { colors } from '../constants/theme';
+
+const datasetFiles = Object.keys(import.meta.glob('/public/data/*.csv')).map(path => 
+  path.split('/').pop() || ''
+);
+
+export default function Sidebar({
+  selectedFile,
+  setSelectedFile,
+  setSelectedTarget,
+  setIntegratedResults,
+  setInconsistencyMatrix,
+  setIsMatrixLoading,
+  availableAttributes,
+  setAvailableAttributes,
+  selectedAttrToRemove,
+  setSelectedAttrToRemove,
+  numAttrsToRemove,
+  setNumAttrsToRemove,
+  nTrees,
+  setNTrees,
+  maxDepth,
+  setMaxDepth,
+  splitRatio,
+  setSplitRatio,
+  entropyThreshold,
+  setEntropyThreshold,
+  runIntegratedAnalysis,
+  isLoading,
+  timer,
+  secretEnabled,
+  setSecretEnabled
+}) {
+  const handleFileChange = async (e) => {
+    const fileName = e.target.value;
+    if (!fileName) return;
+
+    try {
+      setIsMatrixLoading(true);
+      const res = await fetch(`/data/${fileName}`);
+      const text = await res.text();
+      const fileObj = new File([text], fileName, { type: "text/csv" });
+      
+      setSelectedFile(fileObj);
+
+      const firstLine = text.split('\n')[0];
+      const delimiter = firstLine.includes(';') ? ';' : ',';
+      const headers = firstLine.split(delimiter).map(h => h.trim()).filter(Boolean);
+      setSelectedTarget(headers[headers.length - 1]);
+      setIntegratedResults(null);
+
+      const attrFormData = new FormData();
+      attrFormData.append("file", fileObj);
+      const attrRes = await fetch("http://localhost:8000/get-attributes", { method: "POST", body: attrFormData });
+      if (attrRes.ok) {
+        const attrData = await attrRes.json();
+        const attrs = attrData.attributes || [];
+        setAvailableAttributes(attrs);
+        setNumAttrsToRemove(1);
+        setSelectedAttrToRemove(attrs[0] || "");
+      }
+
+      const matrixFormData = new FormData();
+      matrixFormData.append("file", fileObj);
+      const matrixRes = await fetch("http://localhost:8000/calculate-full-inconsistency-matrix", { method: "POST", body: matrixFormData });
+      if (matrixRes.ok) {
+        const matrixData = await matrixRes.json();
+        setInconsistencyMatrix(matrixData.matrix || []);
+      }
+    } catch (err) {
+      console.error("Błąd podczas ładowania pliku i macierzy:", err);
+    } finally {
+      setIsMatrixLoading(false);
+    }
+  };
+
+  const handleKChange = (newK) => {
+    const kVal = parseInt(newK, 10);
+    setNumAttrsToRemove(kVal);
+    const attrsList = availableAttributes.slice(0, kVal);
+    setSelectedAttrToRemove(attrsList.join(", "));
+  };
+
+  return (
+    <aside style={{ width: '340px', borderRight: `1px solid ${colors.border}`, padding: '28px', backgroundColor: colors.card, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', zIndex: 10 }}>
+      <div>
+        <div style={{ fontSize: '24px', fontWeight: '900', color: colors.text, letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{
+            width: '10px', height: '10px', borderRadius: '50%',
+            backgroundColor: secretEnabled ? colors.custom : '#3f3f46',
+            animation: secretEnabled ? 'pulseSecret 2s infinite ease-in-out' : 'none',
+            transition: 'background-color 0.3s'
+          }}></span>
+          PROMETHEUS
+        </div>
+        <div style={{ fontSize: '11px', color: colors.muted, marginTop: '4px', lineHeight: '1.6', letterSpacing: '0.01em' }}>
+          <span style={{ color: colors.custom, fontWeight: 'bold' }}>P</span>anel{' '}
+          <span style={{ color: colors.custom, fontWeight: 'bold' }}>R</span>ozstrzygania{' '}
+          <span style={{ color: colors.custom, fontWeight: 'bold' }}>O</span>bszarów{' '}
+          <span style={{ color: colors.custom, fontWeight: 'bold' }}>M</span>etodycznych{' '}
+          <span style={{ color: colors.custom, fontWeight: 'bold' }}>E</span>waluacji{' '}
+          <span style={{ color: colors.custom, fontWeight: 'bold' }}>T</span>abelarycznych{' '}
+          <span style={{ color: colors.custom, fontWeight: 'bold' }}>H</span>ipotez{' '}
+          <span style={{ color: colors.custom, fontWeight: 'bold' }}>E</span>ntropijnych i{' '}
+          <span style={{ color: colors.custom, fontWeight: 'bold' }}>U</span>jednoliconych{' '}
+          <span style={{ color: colors.custom, fontWeight: 'bold' }}>S</span>ystemów
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <div>
+          <label style={{ fontSize: '11px', fontWeight: '800', color: colors.muted, letterSpacing: '0.05em' }}>ZBIÓR DANYCH</label>
+          <select
+            onChange={handleFileChange}
+            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: `1px solid ${colors.border}`, backgroundColor: colors.bg, color: colors.text, marginTop: '6px', fontSize: '13px' }}
+          >
+            <option value="">Wybierz plik z repozytorium...</option>
+            {datasetFiles.map(fileName => (
+              <option key={fileName} value={fileName}>{fileName}</option>
+            ))}
+          </select>
+        </div>
+
+        {availableAttributes.length > 1 && (
+          <div style={{ backgroundColor: '#141417', padding: '14px', borderRadius: '10px', border: `1px solid ${colors.border}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label style={{ fontSize: '11px', fontWeight: '800', color: colors.custom, letterSpacing: '0.05em' }}>
+                LICZBA ATRYBUTÓW DO USUNIĘCIA (k)
+              </label>
+              <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>
+                k = {numAttrsToRemove} z {availableAttributes.length}
+              </span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max={Math.max(1, availableAttributes.length - 1)}
+              value={numAttrsToRemove}
+              onChange={e => handleKChange(e.target.value)}
+              style={{ marginTop: '10px', width: '100%' }}
+            />
+          </div>
+        )}
+
+        {availableAttributes.length > 0 && (
+          <div>
+            <label style={{ fontSize: '11px', fontWeight: '800', color: colors.muted, letterSpacing: '0.05em' }}>
+              USUWANE CECHY WG INFORMATION GAIN ({numAttrsToRemove})
+            </label>
+            <div style={{ padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border}`, backgroundColor: '#141417', color: colors.custom, marginTop: '6px', fontSize: '12px', fontWeight: 'bold', wordBreak: 'break-all' }}>
+              {selectedAttrToRemove || "Brak"}
+            </div>
+          </div>
+        )}
+
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label style={{ fontSize: '11px', fontWeight: '800', color: colors.muted, letterSpacing: '0.05em' }}>PRÓG ENTROPII ZNORM. (τ)</label>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>{Number(entropyThreshold).toFixed(2)}</span>
+          </div>
+          <input type="range" min="0.30" max="1.00" step="0.05" value={entropyThreshold} onChange={e => setEntropyThreshold(parseFloat(e.target.value))} style={{ marginTop: '10px', width: '100%' }} />
+        </div>
+
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label style={{ fontSize: '11px', fontWeight: '800', color: colors.muted, letterSpacing: '0.05em' }}>LICZBA DRZEW W LESIE (EKSPLORATOR)</label>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>{nTrees}</span>
+          </div>
+          <input type="range" min="1" max="100" value={nTrees} onChange={e => setNTrees(parseInt(e.target.value, 10))} style={{ marginTop: '10px', width: '100%' }} />
+        </div>
+
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label style={{ fontSize: '11px', fontWeight: '800', color: colors.muted, letterSpacing: '0.05em' }}>MAKSYMALNA GŁĘBOKOŚĆ</label>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>{maxDepth}</span>
+          </div>
+          <input type="range" min="1" max="30" value={maxDepth} onChange={e => setMaxDepth(parseInt(e.target.value, 10))} style={{ marginTop: '10px', width: '100%' }} />
+        </div>
+
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label style={{ fontSize: '11px', fontWeight: '800', color: colors.muted, letterSpacing: '0.05em' }}>PROPORCJA PODZIAŁU (TRAIN %)</label>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.custom, backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>{splitRatio}% / {100 - splitRatio}%</span>
+          </div>
+          <input type="range" min="50" max="90" step="5" value={splitRatio} onChange={e => setSplitRatio(parseInt(e.target.value, 10))} style={{ marginTop: '10px', width: '100%' }} />
+        </div>
+
+        <button
+          onClick={runIntegratedAnalysis}
+          disabled={isLoading || !selectedFile || !selectedAttrToRemove}
+          style={{
+            width: '100%', padding: '16px', borderRadius: '10px', backgroundColor: colors.custom, color: colors.bg,
+            border: 'none', fontWeight: '800', fontSize: '13px', cursor: 'pointer', marginTop: '8px',
+            transition: 'all 0.2s ease', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)', letterSpacing: '0.02em'
+          }}
+        >
+          {isLoading ? `PRZETWARZANIE (${timer}s)...` : `URUCHOM POTOK DLA k = ${numAttrsToRemove}`}
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '8px', width: '100%' }}>
+        <img
+          src="/logo1.png"
+          alt="Prometheus Graphic Balance"
+          onClick={() => setSecretEnabled(!secretEnabled)}
+          style={{
+            maxWidth: '80%',
+            maxHeight: '160px',
+            opacity: secretEnabled ? 0.55 : 0.25,
+            filter: secretEnabled ? `drop-shadow(0 0 16px ${colors.custom}80)` : `drop-shadow(0 0 12px ${colors.custom}40)`,
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            transform: secretEnabled ? 'scale(1.04)' : 'scale(1)'
+          }}
+          onMouseEnter={(e) => { if (!secretEnabled) e.currentTarget.style.opacity = '0.55'; }}
+          onMouseLeave={(e) => { if (!secretEnabled) e.currentTarget.style.opacity = '0.25'; }}
+        />
+      </div>
+    </aside>
+  );
+}
+
+
+========================================
+PLIK: src\components\common\UIComponents.jsx
+========================================
+import React from 'react';
+import { colors } from '../../constants/theme';
+
+export const RulePill = ({ attr, op, val, accentColor }) => (
+  <span style={{
+    display: 'inline-flex',
+    alignItems: 'center',
+    backgroundColor: '#1c1c21',
+    border: `1px solid ${colors.border}`,
+    borderRadius: '6px',
+    padding: '3px 10px',
+    margin: '3px',
+    fontSize: '12px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+  }}>
+    <span style={{ color: accentColor, marginRight: '6px', fontWeight: '600' }}>{attr}</span>
+    <span style={{ color: colors.muted, marginRight: '6px' }}>{op}</span>
+    <span style={{ color: colors.text, fontWeight: '500' }}>{val}</span>
+  </span>
+);
+
+export const StatRow = ({ label, value }) => (
+  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: `1px dashed ${colors.border}`, fontSize: '13px' }}>
+    <span style={{ color: colors.muted }}>{label}</span>
+    <strong style={{ color: colors.text }}>{value}</strong>
+  </div>
+);
+
+export const SectionHeader = ({ title, color }) => (
+  <h5 style={{ color: color, margin: '20px 0 10px 0', fontSize: '11px', fontWeight: '800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+    {title}
+  </h5>
+);
+
+
+========================================
+PLIK: src\components\tabs\MatrixTab.jsx
+========================================
+import React from 'react';
+import { colors } from '../../constants/theme';
+
+export default function MatrixTab({ 
+  isMatrixLoading, 
+  inconsistencyMatrix, 
+  selectedAttrToRemove, 
+  setSelectedAttrToRemove,
+  numAttrsToRemove,
+  setNumAttrsToRemove,
+  integratedResults 
+}) {
+  const statsBefore = integratedResults?.dataset_stats?.BEFORE || {};
+  const statsAfterGD = integratedResults?.dataset_stats?.AFTER?.GD || {};
+  const statsAfterMCD = integratedResults?.dataset_stats?.AFTER?.MCD || {};
+  const statsAfterCustom = integratedResults?.dataset_stats?.AFTER?.CUSTOM || {};
+
+  const formatDistribution = (distObj) => {
+    if (!distObj || typeof distObj !== 'object') return '-';
+    try {
+      return JSON.stringify(distObj).replace(/[{""}]/g, '').replace(/,/g, ', ');
+    } catch {
+      return '-';
+    }
+  };
+
+  const handleRowClick = (row) => {
+    if (setNumAttrsToRemove) setNumAttrsToRemove(row.k_removed);
+    if (setSelectedAttrToRemove) setSelectedAttrToRemove(row.removed_attribute);
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+      <div style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+        
+        <div style={{ marginBottom: '20px' }}>
+          <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '900', letterSpacing: '-0.02em' }}>
+            Pełna Macierz Podatności na Niespójności (Rough Sets Theory)
+          </h3>
+          <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: colors.muted }}>
+            Charakterystyka tabel decyzyjnych Many-Valued Decisions po usunięciu 1, 2, 3, ... cech. <b>Kliknij wiersz</b>, aby wybrać stopień redukcji k do całego programu.
+          </p>
+        </div>
+
+        {isMatrixLoading ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: colors.custom, fontWeight: 'bold' }}>
+            Generowanie macierzy wpływu...
+          </div>
+        ) : inconsistencyMatrix && Array.isArray(inconsistencyMatrix) && inconsistencyMatrix.length > 0 ? (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
+              <thead>
+                <tr style={{ borderBottom: `2px solid ${colors.border}`, color: colors.muted }}>
+                  <th style={{ padding: '12px', textAlign: 'left' }}>Decision table T</th>
+                  <th style={{ padding: '12px', textAlign: 'left' }}>Usunięte cechy (k)</th>
+                  <th style={{ padding: '12px' }}>Rows</th>
+                  <th style={{ padding: '12px' }}>Attr</th>
+                  <th style={{ padding: '12px', backgroundColor: '#1c1c21', color: colors.custom }}>#1</th>
+                  <th style={{ padding: '12px', backgroundColor: '#1c1c21' }}>#2</th>
+                  <th style={{ padding: '12px', backgroundColor: '#1c1c21' }}>#3</th>
+                  <th style={{ padding: '12px', backgroundColor: '#1c1c21' }}>#4</th>
+                  <th style={{ padding: '12px', backgroundColor: '#1c1c21' }}>#5</th>
+                  <th style={{ padding: '12px', backgroundColor: '#1c1c21' }}>#6</th>
+                  <th style={{ padding: '12px', color: colors.danger, fontWeight: '900' }}>B(T) (Niespójne)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inconsistencyMatrix.map((row, idx) => {
+                  const isSelected = numAttrsToRemove === row.k_removed;
+                  return (
+                    <tr 
+                      key={idx} 
+                      onClick={() => handleRowClick(row)}
+                      style={{ 
+                        borderBottom: `1px solid ${colors.border}`, 
+                        backgroundColor: isSelected ? 'rgba(16, 185, 129, 0.08)' : 'transparent',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.15s ease'
+                      }}
+                    >
+                      <td style={{ padding: '12px', textAlign: 'left', fontWeight: '800', color: isSelected ? colors.custom : colors.text }}>
+                        {row.table_name || `k=${row.k_removed}`}
+                        {isSelected && <span style={{ marginLeft: '8px', fontSize: '10px', color: colors.custom }}>● AKTYWNY (k={row.k_removed})</span>}
+                      </td>
+                      <td style={{ padding: '12px', textAlign: 'left', color: colors.muted, fontSize: '12px' }}>
+                        {row.removed_attribute}
+                      </td>
+                      <td style={{ padding: '12px', fontWeight: 'bold' }}>{row?.rows ?? 0}</td>
+                      <td style={{ padding: '12px' }}>{row?.attr_count ?? 0}</td>
+                      <td style={{ padding: '12px', fontWeight: 'bold' }}>{row?.spectrum?.["1"] ?? 0}</td>
+                      <td style={{ padding: '12px' }}>{row?.spectrum?.["2"] ?? 0}</td>
+                      <td style={{ padding: '12px' }}>{row?.spectrum?.["3"] ?? 0}</td>
+                      <td style={{ padding: '12px' }}>{row?.spectrum?.["4"] ?? 0}</td>
+                      <td style={{ padding: '12px' }}>{row?.spectrum?.["5"] ?? 0}</td>
+                      <td style={{ padding: '12px' }}>{row?.spectrum?.["6"] ?? 0}</td>
+                      <td style={{ padding: '12px', fontWeight: '900', color: (row?.B_T > 0) ? colors.danger : colors.muted }}>
+                        {row?.B_T ?? 0}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div style={{ padding: '30px', textAlign: 'center', color: colors.muted }}>
+            Wybierz plik ze zbioru danych w lewym panelu, aby załadować macierz.
+          </div>
+        )}
+      </div>
+
+      {integratedResults && integratedResults.dataset_stats && (
+        <div style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+          <h4 style={{ color: colors.custom, margin: '0 0 14px 0', fontSize: '14px', fontWeight: '800', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
+            Charakterystyka struktury zbiorów danych dla redukcji k = {numAttrsToRemove}
+          </h4>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ borderBottom: `2px solid ${colors.border}`, color: colors.muted }}>
+                <th style={{ padding: '10px' }}>Wariant Badania</th>
+                <th style={{ padding: '10px' }}>Usunięte Cechy ({numAttrsToRemove})</th>
+                <th style={{ padding: '10px' }}>Liczba Obiektów (Wierszy)</th>
+                <th style={{ padding: '10px' }}>Liczba Cech (Kolumn)</th>
+                <th style={{ padding: '10px' }}>Rozkład Klas Decyzyjnych</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                <td style={{ padding: '12px', fontWeight: 'bold', color: colors.baseline }}>0. Oryginalny Baseline</td>
+                <td style={{ padding: '12px', color: colors.custom }}>Zachowany</td>
+                <td style={{ padding: '12px' }}>{statsBefore.rows ?? '-'}</td>
+                <td style={{ padding: '12px' }}>{statsBefore.cols ?? '-'}</td>
+                <td style={{ padding: '12px', fontStyle: 'italic', color: colors.muted }}>
+                  {formatDistribution(statsBefore.class_distribution)}
+                </td>
+              </tr>
+              
+              <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                <td style={{ padding: '12px', fontWeight: 'bold', color: colors.gd }}>1. Wariant GD</td>
+                <td style={{ padding: '12px', color: colors.danger }}>Usunięto {numAttrsToRemove}</td>
+                <td style={{ padding: '12px' }}>{statsAfterGD.rows ?? '-'}</td>
+                <td style={{ padding: '12px' }}>{statsAfterGD.cols ?? '-'}</td>
+                <td style={{ padding: '12px', fontStyle: 'italic', color: colors.muted }}>
+                  {formatDistribution(statsAfterGD.class_distribution)}
+                </td>
+              </tr>
+              
+              <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                <td style={{ padding: '12px', fontWeight: 'bold', color: colors.mcd }}>2. Wariant MCD</td>
+                <td style={{ padding: '12px', color: colors.danger }}>Usunięto {numAttrsToRemove}</td>
+                <td style={{ padding: '12px' }}>{statsAfterMCD.rows ?? '-'}</td>
+                <td style={{ padding: '12px' }}>{statsAfterMCD.cols ?? '-'}</td>
+                <td style={{ padding: '12px', fontStyle: 'italic', color: colors.muted }}>
+                  {formatDistribution(statsAfterMCD.class_distribution)}
+                </td>
+              </tr>
+              
+              <tr>
+                <td style={{ padding: '12px', fontWeight: 'bold', color: colors.custom }}>3. Wariant Entropy Threshold</td>
+                <td style={{ padding: '12px', color: colors.danger }}>Usunięto {numAttrsToRemove}</td>
+                <td style={{ padding: '12px' }}>{statsAfterCustom.rows ?? '-'}</td>
+                <td style={{ padding: '12px' }}>{statsAfterCustom.cols ?? '-'}</td>
+                <td style={{ padding: '12px', fontStyle: 'italic', color: colors.muted }}>
+                  {formatDistribution(statsAfterCustom.class_distribution)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+
+========================================
+PLIK: src\components\tabs\MetricsTab.jsx
+========================================
+import React from 'react';
+import { colors } from '../../constants/theme';
+
+export default function MetricsTab({ integratedResults }) {
+  const results = integratedResults?.results || {};
+
+  const cardsConfig = [
+    {
+      id: 'BASELINE',
+      title: '0. Czysty Baseline',
+      subtitle: 'Surowy las ID3 (wybór cech przez Information Gain)',
+      accentColor: colors.baseline
+    },
+    {
+      id: 'GD',
+      title: '1. Generalized Decision',
+      subtitle: 'Wiersze sporne scalone w decyzje uogólnione',
+      accentColor: colors.gd
+    },
+    {
+      id: 'MCD',
+      title: '2. Most Common Decision',
+      subtitle: 'Głosowanie większościowe (dominanta)',
+      accentColor: colors.mcd
+    },
+    {
+      id: 'CUSTOM',
+      title: '3. Entropy Threshold',
+      subtitle: 'Globalne usuwanie szumu informacyjnego miarą entropii',
+      accentColor: colors.custom
+    }
+  ];
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+      {cardsConfig.map((card) => {
+        const data = results[card.id];
+        const stats = data?.evalStats || data;
+        const struct = data?.Struktura_Bazowa;
+        const opt = data?.Optymalizacja_Regul;
+
+        return (
+          <div
+            key={card.id}
+            style={{
+              backgroundColor: colors.card,
+              border: `1px solid ${colors.border}`,
+              borderRadius: '12px',
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+              position: 'relative'
+            }}
+          >
+            <div>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: card.accentColor }}>
+                {card.title}
+              </h3>
+              <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: colors.muted, lineHeight: '1.4' }}>
+                {card.subtitle}
+              </p>
+            </div>
+
+            {!stats ? (
+              <div style={{ padding: '40px 0', textAlign: 'center', color: colors.danger, fontSize: '12px' }}>
+                 Brak danych z API<br />
+                <span style={{ color: colors.muted, fontSize: '11px' }}>Wariant nie został wyliczony lub zwrócił puste dane.</span>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div style={{ backgroundColor: '#141417', padding: '14px', borderRadius: '8px', textAlign: 'center', border: `1px solid ${colors.border}` }}>
+                    <div style={{ fontSize: '22px', fontWeight: '900', color: colors.text }}>
+                      {stats.Dokladnosc_Klasyfikacji ?? '-'}%
+                    </div>
+                    <div style={{ fontSize: '10px', color: colors.muted, marginTop: '2px', fontWeight: 'bold' }}>Accuracy</div>
+                  </div>
+                  <div style={{ backgroundColor: '#141417', padding: '14px', borderRadius: '8px', textAlign: 'center', border: `1px solid ${colors.border}` }}>
+                    <div style={{ fontSize: '22px', fontWeight: '900', color: colors.text }}>
+                      {stats.f1 ?? '-'}%
+                    </div>
+                    <div style={{ fontSize: '10px', color: colors.muted, marginTop: '2px', fontWeight: 'bold' }}>F1-Macro</div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '10px', fontWeight: '800', color: card.accentColor, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                    OPTYMALIZACJA XAI
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0' }}>
+                    <span style={{ color: colors.muted }}>Zredukowane reguły:</span>
+                    <b style={{ color: colors.text }}>{opt?.Liczba_Regul_Po ?? '-'}</b>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0' }}>
+                    <span style={{ color: colors.muted }}>Pierwotne reguły:</span>
+                    <b style={{ color: colors.text }}>{opt?.Liczba_Regul_Przed ?? '-'}</b>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '10px', fontWeight: '800', color: colors.custom, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                    METRYKI STATYSTYCZNE I CZAS
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0' }}>
+                    <span style={{ color: colors.muted }}>Średnia Dokładność (μ):</span>
+                    <b style={{ color: colors.text }}>{stats.Dokladnosc_Klasyfikacji ?? '-'}%</b>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0' }}>
+                    <span style={{ color: colors.muted }}>Odchylenie standardowe (σ):</span>
+                    <b style={{ color: colors.text }}>±{stats.Dokladnosc_Odchylenie ?? 0}%</b>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0' }}>
+                    <span style={{ color: colors.muted }}>Czas wykonania folda:</span>
+                    <b style={{ color: colors.text }}>{stats.Czas_Sredni ?? '-'} s</b>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0' }}>
+                    <span style={{ color: colors.muted }}>Odchylenie czasu (σt):</span>
+                    <b style={{ color: colors.text }}>±{stats.Czas_Odchylenie ?? 0} s</b>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '10px', fontWeight: '800', color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                    STRUKTURA BAZOWA
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0' }}>
+                    <span style={{ color: colors.muted }}>Liczba Węzłów:</span>
+                    <b style={{ color: colors.text }}>{struct?.Liczba_Wezlow ?? '-'}</b>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0' }}>
+                    <span style={{ color: colors.muted }}>Liczba Liści:</span>
+                    <b style={{ color: colors.text }}>{struct?.Liczba_Lisci ?? '-'}</b>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0' }}>
+                    <span style={{ color: colors.muted }}>Śr. głębokość:</span>
+                    <b style={{ color: colors.text }}>{struct?.Srednia_Glebokosc ?? '-'}</b>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+
+========================================
+PLIK: src\components\tabs\ResearchTab.jsx
+========================================
+import React, { useState } from 'react';
+import { colors } from '../../constants/theme';
+
+export default function ResearchTab({ integratedResults }) {
+  const [selectedMode, setSelectedMode] = useState('GD');
+
+  const results = integratedResults?.research_grid || integratedResults?.results;
+
+  if (!integratedResults || !results) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: colors.muted, border: `2px dashed ${colors.border}`, borderRadius: '12px' }}>
+        Brak danych badawczych. Wybierz zbiór z panelu po lewej i kliknij przycisk <b style={{ color: colors.custom }}>"URUCHOM PEŁNY POTOK PROMETHEUS"</b>, aby wygenerować statystyki!
+      </div>
+    );
+  }
+
+  const modes = ['GD', 'MCD', 'CUSTOM', 'BASELINE'];
+  const currentData = results[selectedMode];
+  const isResearchData = currentData && (currentData.FAZA_1_REPREZENTACJA_WIEDZY_BEZ_PODZIALU || currentData.FAZA_2_KLASYFIKACJA_TRAIN_TEST_70_30);
+
+  const getAccentColor = (m) => {
+    if (m === 'GD') return colors.gd;
+    if (m === 'MCD') return colors.mcd;
+    if (m === 'CUSTOM') return colors.custom;
+    return colors.baseline;
+  };
+
+  const activeAccent = getAccentColor(selectedMode);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+      <div style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '900', color: colors.text }}>
+              Raport z Badania Empirycznego (Siatka S: 10, 30, 50)
+            </h3>
+            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: colors.muted }}>
+              Usunięty atrybut (niespójność): <b style={{ color: colors.danger }}>{integratedResults.removed_attribute || "Brak"}</b> | Metodologia: 5x Stratified Shuffle Split 70/30
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '6px', backgroundColor: '#141417', padding: '6px', borderRadius: '10px', border: `1px solid ${colors.border}` }}>
+            {modes.map((m) => {
+              const isSelected = selectedMode === m;
+              const color = getAccentColor(m);
+              return (
+                <button
+                  key={m}
+                  onClick={() => setSelectedMode(m)}
+                  style={{
+                    padding: '8px 16px', borderRadius: '7px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', border: 'none',
+                    backgroundColor: isSelected ? color : 'transparent',
+                    color: isSelected ? colors.bg : colors.muted,
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {m === 'CUSTOM' ? 'KONFLICT (ET)' : m}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {currentData?.dataset_metadata && (
+          <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, display: 'flex', gap: '24px', fontSize: '13px' }}>
+            <div>Obiekty (wiersze): <b style={{ color: colors.text }}>{currentData.dataset_metadata.rows_count}</b></div>
+            <div>Cechy warunkowe: <b style={{ color: colors.text }}>{currentData.dataset_metadata.cols_count}</b></div>
+            <div>Wariant: <b style={{ color: activeAccent }}>{selectedMode === 'CUSTOM' ? 'KONFLICT (ET)' : selectedMode}</b></div>
+          </div>
+        )}
+      </div>
+
+      {!isResearchData ? (
+        <div style={{ 
+          padding: '36px', 
+          backgroundColor: 'rgba(251, 191, 36, 0.08)', 
+          border: `1px dashed ${colors.baseline}`, 
+          borderRadius: '12px', 
+          textAlign: 'center', 
+          lineHeight: '1.6' 
+        }}>
+          <h4 style={{ margin: '0 0 10px 0', color: colors.baseline, fontSize: '16px' }}>Trwa przeliczanie siatki badawczej w tle...</h4>
+          <p style={{ margin: 0, fontSize: '13px', color: colors.text }}>
+            Obecnie w pamięci aplikacji znajdują się wyniki z szybkiej analizy suwaków.
+            <br /><br />
+            Serwer Pythona w tle przelicza pełną siatkę dla <b>S = 10, 30 i 50 drzew</b>. 
+            Gdy tylko skończy, tabele zaktualizują się automatycznie!
+          </p>
+        </div>
+      ) : (
+        <>
+          <div style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
+            <h4 style={{ margin: '0 0 16px 0', color: activeAccent, fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              I. Reprezentacja Wiedzy - Porównanie Lasu Losowego i Algorytmu A (Bez podziału zbioru)
+            </h4>
+            
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
+                <thead>
+                  <tr style={{ borderBottom: `2px solid ${colors.border}`, color: colors.muted }}>
+                    <th style={{ padding: '12px', textAlign: 'left' }}>Liczba Drzew (S)</th>
+                    <th style={{ padding: '12px', textAlign: 'left' }}>Model</th>
+                    <th style={{ padding: '12px' }}>Liczba Reguł</th>
+                    <th style={{ padding: '12px' }}>Śr. Długość Reguły</th>
+                    <th style={{ padding: '12px' }}>Długość Względna</th>
+                    <th style={{ padding: '12px' }}>Śr. Wsparcie (Wiersze)</th>
+                    <th style={{ padding: '12px', color: activeAccent }}>Śr. Wsparcie (%)</th>
+                    <th style={{ padding: '12px', color: '#38bdf8' }}>Kompresja (%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentData?.FAZA_1_REPREZENTACJA_WIEDZY_BEZ_PODZIALU && 
+                    Object.entries(currentData.FAZA_1_REPREZENTACJA_WIEDZY_BEZ_PODZIALU).map(([sKey, stats]) => (
+                    <React.Fragment key={sKey}>
+                      <tr style={{ backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                        <td rowSpan={2} style={{ padding: '14px', textAlign: 'left', fontWeight: 'bold', borderBottom: `1px solid ${colors.border}`, borderRight: `1px solid ${colors.border}` }}>
+                          {sKey.replace('_', ' = ')} drzew
+                        </td>
+                        <td style={{ padding: '10px', textAlign: 'left', color: colors.muted }}>Las Losowy (Surowy)</td>
+                        <td style={{ padding: '10px', color: colors.muted }}>{stats.liczba_regul_lasu_losowego ?? '-'}</td>
+                        <td style={{ padding: '10px', color: colors.muted }}>{stats.srednia_dlugosc_regul_lasu_losowego ?? '-'}</td>
+                        <td style={{ padding: '10px', color: colors.muted }}>-</td>
+                        <td style={{ padding: '10px', color: colors.muted }}>{stats.srednie_wsparcie_regul_wiersze_lasu_losowego ?? '-'}</td>
+                        <td style={{ padding: '10px', color: colors.muted }}>{stats.srednie_wsparcie_regul_procent_lasu_losowego ?? '-'}%</td>
+                        <td rowSpan={2} style={{ padding: '14px', fontWeight: '900', color: '#38bdf8', borderBottom: `1px solid ${colors.border}` }}>
+                          {stats.stopien_kompresji_procent ?? 0}%
+                        </td>
+                      </tr>
+                      <tr style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: 'rgba(255,255,255,0.03)' }}>
+                        <td style={{ padding: '10px', textAlign: 'left', color: activeAccent, fontWeight: 'bold' }}>Algorytm A (Zoptymalizowany)</td>
+                        <td style={{ padding: '10px', fontWeight: '800', color: colors.text }}>{stats.liczba_regul_algorytm_A ?? '-'}</td>
+                        <td style={{ padding: '10px', fontWeight: 'bold', color: colors.text }}>{stats.srednia_dlugosc_regul ?? '-'}</td>
+                        <td style={{ padding: '10px', color: colors.muted }}>{stats.srednia_dlugosc_wzgledem_liczby_wierszy ?? '-'}</td>
+                        <td style={{ padding: '10px', fontWeight: 'bold', color: colors.text }}>{stats.srednie_wsparcie_regul_wiersze ?? '-'}</td>
+                        <td style={{ padding: '10px', fontWeight: '800', color: activeAccent }}>{stats.srednie_wsparcie_regul_procent ?? '-'}%</td>
+                      </tr>
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px' }}>
+            <h4 style={{ margin: '0 0 16px 0', color: activeAccent, fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              II. Ewaluacja Klasyfikacji - Podział 70% Train / 30% Test (Średnia z 5 losowań stratyfikowanych)
+            </h4>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
+                <thead>
+                  <tr style={{ borderBottom: `2px solid ${colors.border}`, color: colors.muted }}>
+                    <th style={{ padding: '12px', textAlign: 'left' }}>Wielkość Lasu</th>
+                    <th style={{ padding: '12px', textAlign: 'left' }}>Klasyfikator</th>
+                    <th style={{ padding: '12px' }}>Accuracy (%)</th>
+                    <th style={{ padding: '12px' }}>Precision (%)</th>
+                    <th style={{ padding: '12px' }}>Recall (%)</th>
+                    <th style={{ padding: '12px' }}>F1-Score (%)</th>
+                    <th style={{ padding: '12px', color: colors.custom }}>Różnica Acc (Reguły vs Drzewa)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentData?.FAZA_2_KLASYFIKACJA_TRAIN_TEST_70_30 && 
+                    Object.entries(currentData.FAZA_2_KLASYFIKACJA_TRAIN_TEST_70_30).map(([sKey, stats]) => {
+                      const drzewa = stats.DRZEWA_LAS_LOSOWY_AVG_5_RUNS;
+                      const reguly = stats.REGULY_ALGORYTM_A_AVG_5_RUNS;
+                      const diff = stats.porownanie_roznica_accuracy_reguly_vs_drzewa;
+                      
+                      return (
+                        <React.Fragment key={sKey}>
+                          <tr style={{ backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                            <td rowSpan={2} style={{ padding: '14px', textAlign: 'left', fontWeight: 'bold', borderBottom: `1px solid ${colors.border}`, borderRight: `1px solid ${colors.border}` }}>
+                              {sKey.replace('_', ' = ')}
+                            </td>
+                            <td style={{ padding: '10px', textAlign: 'left', color: colors.muted }}>Las Losowy (Drzewa)</td>
+                            <td style={{ padding: '10px', fontWeight: '600' }}>{drzewa?.avg_accuracy ?? '-'}%</td>
+                            <td style={{ padding: '10px' }}>{drzewa?.avg_precision ?? '-'}%</td>
+                            <td style={{ padding: '10px' }}>{drzewa?.avg_recall ?? '-'}%</td>
+                            <td style={{ padding: '10px' }}>{drzewa?.avg_f1_score ?? '-'}%</td>
+                            <td rowSpan={2} style={{ 
+                              padding: '14px', 
+                              fontWeight: '900', 
+                              fontSize: '14px',
+                              borderBottom: `1px solid ${colors.border}`,
+                              color: diff > 0 ? colors.custom : (diff < 0 ? colors.danger : colors.muted) 
+                            }}>
+                              {diff !== undefined ? (diff > 0 ? `+${diff}%` : `${diff}%`) : '-'}
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: 'rgba(255,255,255,0.03)' }}>
+                            <td style={{ padding: '10px', textAlign: 'left', color: activeAccent, fontWeight: 'bold' }}>Reguły (Algorytm A)</td>
+                            <td style={{ padding: '10px', fontWeight: '800', color: colors.text }}>{reguly?.avg_accuracy ?? '-'}%</td>
+                            <td style={{ padding: '10px', fontWeight: '600' }}>{reguly?.avg_precision ?? '-'}%</td>
+                            <td style={{ padding: '10px', fontWeight: '600' }}>{reguly?.avg_recall ?? '-'}%</td>
+                            <td style={{ padding: '10px', fontWeight: '800', color: activeAccent }}>{reguly?.avg_f1_score ?? '-'}%</td>
+                          </tr>
+                        </React.Fragment>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+
+    </div>
+  );
+}
+
+
+========================================
+PLIK: src\components\tabs\RulesTab.jsx
+========================================
+import React from 'react';
+import { colors } from '../../constants/theme';
+import { int, generateRuleSentence } from '../../utils/helpers';
+import { RulePill } from '../common/UIComponents';
+
+export default function RulesTab({
+  integratedResults,
+  selectedRulesMethod,
+  setSelectedRulesMethod,
+  expandedGroups,
+  setExpandedGroups,
+  nTrees,
+  triggerEtFlight
+}) {
+  const activeMethodData = integratedResults?.results?.[selectedRulesMethod];
+  const rawRulesList = activeMethodData?.Reguly_Globalne || activeMethodData?.algorithmAResults || [];
+
+  const rulesList = rawRulesList.map((r, idx) => {
+    const normalizedConditions = (r.conditions || []).map(c => ({
+      attribute: c.attribute,
+      op: c.op || '=',
+      val: c.val !== undefined ? c.val : c.value
+    }));
+
+    return {
+      ...r,
+      conditions: normalizedConditions,
+      supportCount: r.supportCount ?? 1,
+      isBestRule: r.isBestRule !== undefined ? r.isBestRule : (idx === 0)
+    };
+  });
+
+  const getMethodColor = (m) => {
+    if (m === "BASELINE") return colors.baseline;
+    if (m === "GD") return colors.gd;
+    if (m === "MCD") return colors.mcd;
+    return colors.custom;
+  };
+
+  const activeAccent = getMethodColor(selectedRulesMethod);
+  const toggleGroup = (sup) => setExpandedGroups(p => ({ ...p, [sup]: !p[sup] }));
+
+  const maxTrees = int(nTrees);
+  const uniqueSupports = Array.from(new Set(rulesList.map(r => r.supportCount))).sort((a, b) => b - a);
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
+        <div>
+          <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '900', letterSpacing: '-0.02em' }}>
+            Baza Reguł Wyjaśnialnych (PROMETHEUS Engine)
+          </h3>
+          <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: colors.muted }}>
+            Wybierz technikę usuwania niespójności, aby przeanalizować powtarzalność i semantykę reguł globalnych wyindukowanych przez Algorytm A.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '6px', backgroundColor: '#141417', padding: '6px', borderRadius: '10px', border: `1px solid ${colors.border}` }}>
+          {[
+            { key: "BASELINE", label: "B.C", color: colors.baseline },
+            { key: "GD", label: "G.D", color: colors.gd },
+            { key: "MCD", label: "M.C.D", color: colors.mcd },
+            { key: "CUSTOM", label: "E.T", color: colors.custom }
+          ].map(m => {
+            const isSelected = selectedRulesMethod === m.key;
+            return (
+              <button
+                key={m.key}
+                onClick={() => {
+                  setSelectedRulesMethod(m.key);
+                  setExpandedGroups({});
+                  if (m.key === "CUSTOM" && triggerEtFlight) triggerEtFlight();
+                }}
+                style={{
+                  padding: '8px 14px', borderRadius: '7px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', border: 'none',
+                  backgroundColor: isSelected ? m.color : 'transparent',
+                  color: isSelected ? colors.bg : colors.muted,
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {m.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {uniqueSupports.length > 0 ? (
+        uniqueSupports.map(sup => {
+          const group = rulesList.filter(r => r.supportCount === sup);
+          if (group.length === 0) return null;
+          const isOpen = expandedGroups[sup];
+
+          return (
+            <div key={sup} style={{ marginBottom: '10px', border: `1px solid ${isOpen ? activeAccent : colors.border}`, borderRadius: '10px', overflow: 'hidden' }}>
+              <div
+                onClick={() => toggleGroup(sup)}
+                style={{ padding: '14px 20px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', backgroundColor: colors.card, alignItems: 'center', userSelect: 'none' }}
+              >
+                <span style={{ fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: activeAccent }}></span>
+                  Poziom Poparcia Przez Drzewa: {sup} z {maxTrees}
+                  {sup === 1 ? ' <Lokalny szum logiczny odrzucony w agregacji>' : ''}
+                </span>
+                <span style={{ color: colors.muted, fontSize: '12px', fontWeight: '600' }}>
+                  {group.length} {group.length === 1 ? 'reguła' : 'reguł'} {isOpen ? '▲' : '▼'}
+                </span>
+              </div>
+              {isOpen && (
+                <div style={{ padding: '20px', backgroundColor: '#0c0c0e', borderTop: `1px solid ${colors.border}` }}>
+                  {group.slice(0, 40).map((r, i) => (
+                    <div key={i} style={{
+                      fontSize: '13px', marginBottom: '12px', padding: '16px', backgroundColor: colors.card,
+                      border: r.isBestRule ? `1px dashed ${activeAccent}` : `1px solid ${colors.border}`, borderRadius: '8px'
+                    }}>
+                      {r.isBestRule && (
+                        <div style={{ color: activeAccent, fontWeight: '900', marginBottom: '12px', fontSize: '11px', letterSpacing: '0.05em' }}>
+                          OPTYMALNY WZORZEC GLOBALNY (NAJWYŻSZE WSPARCIE W LESIE)
+                        </div>
+                      )}
+                      <span style={{ color: colors.muted, fontWeight: '700' }}>IF </span> 
+                      {r.conditions && r.conditions.length > 0 ? (
+                        r.conditions.map((c, ci) => (
+                          <RulePill key={ci} attr={c.attribute} op={c.op} val={c.val} accentColor={activeAccent} />
+                        ))
+                      ) : (
+                        <span style={{ color: colors.muted, fontStyle: 'italic' }}>Brak warunków (Reguła domyślna)</span>
+                      )}
+                      <span style={{ color: colors.muted, fontWeight: '700' }}> THEN </span> 
+                      <span style={{ color: colors.custom, fontWeight: 'bold' }}>{String(r.decision)}</span>
+                      
+                      {typeof generateRuleSentence === 'function' && (
+                        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px dashed ${colors.border}`, color: colors.muted, fontStyle: 'italic', fontSize: '11px', lineHeight: '1.6' }}>
+                          {generateRuleSentence(r.conditions, r.decision)}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })
+      ) : (
+        <div style={{ padding: '32px', textAlign: 'center', color: colors.muted, border: `2px dashed ${colors.border}`, borderRadius: '12px', fontSize: '13px', backgroundColor: colors.card }}>
+          Wszystkie wygenerowane reguły dla tego wariantu zostały odrzucone przez próg selekcji wsparcia.
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+========================================
+PLIK: src\constants\theme.js
+========================================
+export const colors = {
+  bg: '#09090b',
+  card: '#141417',
+  cardSecondary: '#1c1c21',
+  border: '#27272a',
+  text: '#f4f4f5',
+  muted: '#a1a1aa',
+  baseline: '#fbbf24',
+  gd: '#a855f7',
+  mcd: '#06b6d4',
+  custom: '#10b981',
+  danger: '#ef4444'
+};
+
+
+========================================
+PLIK: src\scripts\analytics.py
+========================================
+import math
+import numpy as np
+import pandas as pd
+
+
+def calculate_weighted_normalized_entropy(
+    decisions_series, class_weights, num_classes
+):
+  """Oblicza znormalizowaną entropię Shannona [0, 1] z uwzględnieniem wag klas."""
+  if num_classes <= 1 or len(decisions_series) <= 1:
+    return 0.0
+
+  counts = decisions_series.value_counts()
+  if len(counts) <= 1:
+    return 0.0
+
+  weighted_counts = {
+      str(cls): cnt * class_weights.get(str(cls), 1.0)
+      for cls, cnt in counts.items()
+  }
+  total_weight = sum(weighted_counts.values())
+  if total_weight <= 0:
+    return 0.0
+
+  probs = [w / total_weight for w in weighted_counts.values()]
+  raw_entropy = -sum(p * math.log2(p) for p in probs if p > 0)
+  max_entropy = math.log2(num_classes)
+  return min(1.0, raw_entropy / max_entropy) if max_entropy > 0 else 0.0
+
+
+def run_inconsistency_data_generation(
+    df, target_attr, attr_to_remove, entropy_threshold=0.75
+):
+  df = df.copy()
+  df.columns = [c.strip() for c in df.columns]
+  target_attr = str(target_attr).strip()
+
+  if isinstance(attr_to_remove, str):
+    cols_to_drop = [a.strip() for a in attr_to_remove.split(",") if a.strip()]
+  else:
+    cols_to_drop = [str(a).strip() for a in attr_to_remove if str(a).strip()]
+
+  cols_to_drop = [
+      c for c in cols_to_drop if c in df.columns and c != target_attr
+  ]
+  df_inconsistent = df.drop(columns=cols_to_drop).copy()
+  remaining_cond_attrs = [
+      c for c in df_inconsistent.columns if c != target_attr
+  ]
+
+  if not remaining_cond_attrs:
+    return {
+        "GD": df_inconsistent,
+        "MCD": df_inconsistent,
+        "CUSTOM": df_inconsistent,
+    }
+
+  target_series_all = df_inconsistent[target_attr].astype(str)
+  total_unique_classes = max(2, target_series_all.nunique())
+  global_counts = target_series_all.value_counts()
+  n_total = len(target_series_all)
+
+  # Pierwiastkowe ważenie odwrotnością częstości chroni klasy mniejszościowe
+  class_weights = {
+      str(cls): math.sqrt(n_total / (total_unique_classes * cnt))
+      for cls, cnt in global_counts.items()
+  }
+
+  gd_records = []
+  mcd_records = []
+  candidates = []
+
+  for _, group in df_inconsistent.groupby(remaining_cond_attrs, dropna=False):
+    base_row = group.iloc[0][remaining_cond_attrs].to_dict()
+    decisions_series = group[target_attr].astype(str)
+    unique_decisions = sorted(list(set(decisions_series)))
+
+    # 1. Wariant GD (Generalized Decision)
+    gd_row = base_row.copy()
+    gd_row[target_attr] = (
+        unique_decisions[0]
+        if len(unique_decisions) == 1
+        else str(unique_decisions)
+    )
+    gd_records.append(gd_row)
+
+    # Deterministyczna dominanta dla MCD (przy remisie decyduje porządek alfabetyczny)
+    counts = decisions_series.value_counts()
+    max_freq = counts.max()
+    raw_dominant = sorted(
+        [str(k) for k, v in counts.items() if v == max_freq]
+    )[0]
+
+    # 2. Wariant MCD (Most Common Decision)
+    mcd_row = base_row.copy()
+    mcd_row[target_attr] = raw_dominant
+    mcd_records.append(mcd_row)
+
+    # Dominanta ważona oraz znormalizowana entropia dla CUSTOM (ET)
+    weighted_scores = {
+        str(cls): cnt * class_weights.get(str(cls), 1.0)
+        for cls, cnt in counts.items()
+    }
+    weighted_dominant = sorted(
+        weighted_scores.items(), key=lambda x: (-x[1], x[0])
+    )[0][0]
+
+    norm_entropy = calculate_weighted_normalized_entropy(
+        decisions_series, class_weights, total_unique_classes
+    )
+    candidates.append(
+        (base_row, weighted_dominant, norm_entropy, len(decisions_series))
+    )
+
+  df_gd = pd.DataFrame(gd_records)
+  df_mcd = pd.DataFrame(mcd_records)
+
+  # 3. Wariant CUSTOM / ET (Entropy Threshold)
+  candidates_sorted = sorted(candidates, key=lambda x: (x[2], -x[3]))
+  tau = float(entropy_threshold) if entropy_threshold is not None else 0.75
+
+  selected = [c for c in candidates_sorted if c[2] <= tau]
+
+  # Gwarancja pokrycia: zachowaj minimum 50% najczystszych klas abstrakcji
+  min_keep = max(1, len(candidates_sorted) // 2)
+  if len(selected) < min_keep:
+    selected = candidates_sorted[:min_keep]
+
+  # Gwarancja zachowania każdej klasy decyzyjnej
+  present_classes = {c[1] for c in selected}
+  all_classes = {c[1] for c in candidates_sorted}
+  missing_classes = all_classes - present_classes
+
+  if missing_classes:
+    selected_ids = {id(c) for c in selected}
+    for m_cls in missing_classes:
+      cls_cands = [
+          c
+          for c in candidates_sorted
+          if c[1] == m_cls and id(c) not in selected_ids
+      ]
+      for cand in cls_cands[: max(1, len(cls_cands) // 2)]:
+        selected.append(cand)
+        selected_ids.add(id(cand))
+
+  custom_rows = []
+  for base_row, dom_dec, _, _ in selected:
+    row_copy = base_row.copy()
+    row_copy[target_attr] = dom_dec
+    custom_rows.append(row_copy)
+
+  df_custom = (
+      pd.DataFrame(custom_rows)
+      if custom_rows
+      else pd.DataFrame(columns=df_inconsistent.columns)
+  )
+
+  return {"GD": df_gd, "MCD": df_mcd, "CUSTOM": df_custom}
+
+
+========================================
+PLIK: src\scripts\main.py
+========================================
+import io
+import traceback
+from analytics import run_inconsistency_data_generation
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+import pandas as pd
+from research_service import run_full_research_experiment
+from xai_service import rank_attributes_by_ig, run_xai_pipeline
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+def read_flexible_csv(contents: bytes) -> pd.DataFrame:
+  """Wczytuje CSV, czyści spacje, usuwa braki oraz odrzuca rekordy kontrolne 'c'."""
+  df = pd.read_csv(
+      io.StringIO(contents.decode("utf-8", errors="ignore")),
+      sep=None,
+      engine="python",
+  )
+  df.columns = [str(c).strip() for c in df.columns]
+  df = df.apply(
+      lambda x: x.str.strip() if x.dtype == "object" else x
+  ).dropna()
+
+  last_col = df.columns[-1]
+  df = df[~df[last_col].astype(str).str.strip().isin(["c", "C", "?"])].copy()
+  # Odrzucenie wierszy z brakami oznaczonymi jako '?' w dowolnej kolumnie
+  mask_valid = ~df.astype(str).apply(lambda col: col.str.strip() == "?").any(
+      axis=1
+  )
+  return df[mask_valid].copy()
+
+
+@app.post("/get-attributes")
+async def get_attributes(file: UploadFile = File(...)):
+  try:
+    contents = await file.read()
+    df = read_flexible_csv(contents)
+    target_attr = df.columns[-1]
+    # Sortujemy atrybuty malejąco po Information Gain, aby redukcja k szybciej budowała zrównoważone spektrum #1, #2, #3
+    ranked_attrs = rank_attributes_by_ig(df, target_attr)
+    return {"attributes": ranked_attrs}
+  except Exception as e:
+    traceback.print_exc()
+    raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/run-research-experiment")
+async def run_research_experiment_endpoint(
+    file: UploadFile = File(...),
+    targetAttr: str = Form(...),
+    attrToRemove: str = Form(...),
+    maxDepth: int = Form(10),
+    splitRatio: int = Form(70),
+    entropyThreshold: float = Form(0.75),
+):
+  try:
+    contents = await file.read()
+    df_base = read_flexible_csv(contents)
+
+    experiment_results = run_full_research_experiment(
+        df_base=df_base,
+        targetAttr=targetAttr.strip(),
+        attrToRemove=attrToRemove.strip(),
+        maxDepth=maxDepth,
+        splitRatio=splitRatio,
+        entropyThreshold=entropyThreshold,
+    )
+    return experiment_results
+  except Exception as e:
+    traceback.print_exc()
+    raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/analyze-integrated")
+async def analyze_integrated(
+    file: UploadFile = File(...),
+    splitRatio: int = Form(...),
+    targetAttr: str = Form(...),
+    nTrees: int = Form(...),
+    maxDepth: int = Form(...),
+    attrToRemove: str = Form(...),
+    entropyThreshold: float = Form(0.75),
+):
+  try:
+    contents = await file.read()
+    df_base = read_flexible_csv(contents)
+    targetAttr = targetAttr.strip()
+    attrToRemove = attrToRemove.strip()
+
+    stats_before = {
+        "rows": int(len(df_base)),
+        "cols": int(len(df_base.columns) - 1),
+        "class_distribution": {
+            str(k): int(v) for k, v in df_base[targetAttr].value_counts().items()
+        },
+    }
+
+    datasets = run_inconsistency_data_generation(
+        df_base, targetAttr, attrToRemove, entropy_threshold=entropyThreshold
+    )
+
+    stats_after = {}
+    for mode in ["GD", "MCD", "CUSTOM"]:
+      df_variant = datasets.get(mode)
+      if df_variant is not None and not df_variant.empty:
+        stats_after[mode] = {
+            "rows": int(len(df_variant)),
+            "cols": int(len(df_variant.columns) - 1),
+            "class_distribution": {
+                str(k): int(v)
+                for k, v in df_variant[targetAttr].value_counts().items()
+            },
+        }
+      else:
+        stats_after[mode] = {"rows": 0, "cols": 0, "class_distribution": {}}
+
+    results = {}
+    for mode in ["GD", "MCD", "CUSTOM", "BASELINE"]:
+      results[mode] = run_xai_pipeline(
+          df_base=df_base,
+          split_ratio=splitRatio,
+          target_attr=targetAttr,
+          n_trees=nTrees,
+          max_depth=maxDepth,
+          mode=mode,
+          attr_to_remove=attrToRemove,
+          entropy_threshold=entropyThreshold,
+      )
+
+    return {
+        "status": "success",
+        "removed_attribute": attrToRemove,
+        "dataset_stats": {"BEFORE": stats_before, "AFTER": stats_after},
+        "results": results,
+    }
+  except Exception as e:
+    traceback.print_exc()
+    raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/calculate-full-inconsistency-matrix")
+async def calculate_full_inconsistency_matrix(file: UploadFile = File(...)):
+  try:
+    contents = await file.read()
+    df = read_flexible_csv(contents)
+
+    target_attr = df.columns[-1]
+    all_attributes = rank_attributes_by_ig(df, target_attr)
+
+    raw_name = file.filename or "dataset.csv"
+    dataset_name = raw_name.replace("modified_", "").replace(".csv", "")
+    matrix_results = []
+
+    max_k = max(1, len(all_attributes) - 1)
+    for k in range(1, max_k + 1):
+      attrs_to_remove = all_attributes[:k]
+      df_reduced = df.drop(columns=attrs_to_remove)
+      condition_attrs = [c for c in df_reduced.columns if c != target_attr]
+
+      if not condition_attrs:
+        continue
+
+      groups = df_reduced.groupby(condition_attrs, dropna=False)
+      decision_counts_per_group = groups[target_attr].nunique()
+
+      spectrum_counts = decision_counts_per_group.value_counts().to_dict()
+      spectrum_cleaned = {
+          int(k_val): int(v_val) for k_val, v_val in spectrum_counts.items()
+      }
+
+      unique_rows_count = int(len(decision_counts_per_group))
+      boundary_count = int((decision_counts_per_group > 1).sum())
+
+      matrix_results.append({
+          "k_removed": int(k),
+          "table_name": f"{dataset_name}-{k}",
+          "removed_attribute": ", ".join(attrs_to_remove),
+          "rows": unique_rows_count,
+          "attr_count": int(len(condition_attrs)),
+          "spectrum": {
+              "1": spectrum_cleaned.get(1, 0),
+              "2": spectrum_cleaned.get(2, 0),
+              "3": spectrum_cleaned.get(3, 0),
+              "4": spectrum_cleaned.get(4, 0),
+              "5": spectrum_cleaned.get(5, 0),
+              "6": spectrum_cleaned.get(6, 0),
+          },
+          "B_T": boundary_count,
+      })
+
+    return {"status": "success", "matrix": matrix_results}
+  except Exception as e:
+    traceback.print_exc()
+    raise HTTPException(status_code=500, detail=str(e))
+
+
+if __name__ == "__main__":
+  import uvicorn
+
+  uvicorn.run(app, host="127.0.0.1", port=8000)
+
+
+========================================
+PLIK: src\scripts\research_service.py
+========================================
+import ast
+import math
+from analytics import run_inconsistency_data_generation
+import numpy as np
+import pandas as pd
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.model_selection import ShuffleSplit, StratifiedShuffleSplit
+from xai_service import build_id3_tree, extract_rules_from_id3
+
+
+def _parse_decision_set(val):
+  str_v = str(val).strip()
+  if str_v.startswith("[") and str_v.endswith("]"):
+    try:
+      parsed = ast.literal_eval(str_v)
+      if isinstance(parsed, (list, set, tuple)):
+        return {str(x).strip().lower() for x in parsed}
+    except Exception:
+      pass
+  return {str_v.strip("'\"").strip().lower()}
+
+
+def _calculate_dataset_support(df_f, rules, target_attr, is_gd_mode=False):
+  total_rows = len(df_f)
+  if total_rows == 0 or not rules:
+    return 0.0, 0.0
+
+  supports = []
+  for r in rules:
+    conds = r.get("_raw_conditions", {})
+    rule_dec_set = _parse_decision_set(r.get("decision", ""))
+
+    if conds:
+      mask = pd.Series([True] * total_rows, index=df_f.index)
+      for attr, val in conds.items():
+        if attr in df_f.columns:
+          mask = mask & (
+              df_f[attr].astype(str).str.strip().str.lower()
+              == str(val).strip().lower()
+          )
+      matched_rows = df_f[mask]
+    else:
+      matched_rows = df_f
+
+    if matched_rows.empty:
+      supports.append(0)
+      continue
+
+    if is_gd_mode:
+      correct_matches = matched_rows[target_attr].apply(
+          lambda target_val: len(
+              rule_dec_set.intersection(_parse_decision_set(target_val))
+          )
+          > 0
+      )
+      supports.append(correct_matches.sum())
+    else:
+      dec_str = str(r["decision"]).strip().lower()
+      correct_matches = (
+          matched_rows[target_attr].astype(str).str.strip().str.lower()
+          == dec_str
+      )
+      supports.append(correct_matches.sum())
+
+  if not supports:
+    return 0.0, 0.0
+
+  avg_sup_count = np.mean(supports)
+  avg_sup_ratio = (avg_sup_count / total_rows) * 100 if total_rows > 0 else 0.0
+  return round(float(avg_sup_count), 2), round(float(avg_sup_ratio), 2)
+
+
+def _predict_by_rules(row, rules, fallback_decision):
+  for r in rules:
+    match = True
+    conds = r.get("_raw_conditions", {})
+    if not conds:
+      continue
+    for attr, val in conds.items():
+      if str(row.get(attr)).strip().lower() != str(val).strip().lower():
+        match = False
+        break
+    if match:
+      return r["decision"]
+  return fallback_decision
+
+
+def _evaluate_predictions(y_true, y_preds, is_gd_mode):
+  cleaned_true = []
+  cleaned_pred = []
+
+  for t, p in zip(y_true, y_preds):
+    t_set = _parse_decision_set(t)
+    p_set = _parse_decision_set(p)
+
+    if is_gd_mode:
+      if p_set.issubset(t_set) or (len(t_set.intersection(p_set)) > 0):
+        chosen_val = list(t_set.intersection(p_set))[0]
+        cleaned_true.append(chosen_val)
+        cleaned_pred.append(chosen_val)
+      else:
+        cleaned_true.append(list(t_set)[0])
+        cleaned_pred.append(list(p_set)[0])
+    else:
+      cleaned_true.append(list(t_set)[0])
+      cleaned_pred.append(list(p_set)[0])
+
+  acc = accuracy_score(cleaned_true, cleaned_pred) * 100
+  prec = (
+      precision_score(
+          cleaned_true, cleaned_pred, average="weighted", zero_division=0
+      )
+      * 100
+  )
+  rec = (
+      recall_score(
+          cleaned_true, cleaned_pred, average="weighted", zero_division=0
+      )
+      * 100
+  )
+  f1 = (
+      f1_score(cleaned_true, cleaned_pred, average="weighted", zero_division=0)
+      * 100
+  )
+
+  return acc, prec, rec, f1
+
+
+def _train_and_eval_single_split(
+    train_df, test_df, target_attr, nTrees, maxDepth, is_gd_mode, rng
+):
+  X_train = train_df.drop(columns=[target_attr])
+  y_train = train_df[target_attr].astype(str).values
+  X_test = test_df.drop(columns=[target_attr])
+  y_test = test_df[target_attr].astype(str).values
+  feature_names = list(X_train.columns)
+
+  forest_trees = []
+  for _ in range(nTrees):
+    boot_idx = rng.choice(len(X_train), size=len(X_train), replace=True)
+    n_sub = max(1, int(math.sqrt(len(feature_names))))
+    sub_feats = list(rng.choice(feature_names, size=n_sub, replace=False))
+    tree = build_id3_tree(
+        X_train.iloc[boot_idx], y_train[boot_idx], sub_feats, maxDepth
+    )
+    forest_trees.append(tree)
+
+  raw_rules = []
+  for t_idx, tree in enumerate(forest_trees):
+    raw_rules.extend(extract_rules_from_id3(tree, {}, t_idx))
+
+  unique_rules = {}
+  for r in raw_rules:
+    if not r.get("conditions"):
+      continue
+    r_key = (frozenset(r["_raw_conditions"].items()), str(r["decision"]))
+    if r_key not in unique_rules:
+      unique_rules[r_key] = {
+          "conditions": r["conditions"],
+          "_raw_conditions": r["_raw_conditions"],
+          "decision": r["decision"],
+          "supportCount": 0,
+      }
+    unique_rules[r_key]["supportCount"] += 1
+
+  algo_a_rules = [r for r in unique_rules.values() if r["supportCount"] > 1]
+  if not algo_a_rules:
+    algo_a_rules = list(unique_rules.values())
+  algo_a_rules.sort(key=lambda x: (-x["supportCount"], len(x["conditions"])))
+
+  unique_cls, cnts = np.unique(y_train, return_counts=True)
+  fallback_dec = unique_cls[np.argmax(cnts)] if len(y_train) > 0 else "Brak"
+
+  def _predict_tree_nav(node, row):
+    if node.is_leaf:
+      return node.decision
+    val = str(row.get(node.attribute)).strip()
+    if val in node.branches:
+      return _predict_tree_nav(node.branches[val], row)
+    return None
+
+  def predict_forest_wrapper(row):
+    votes = [
+        tree.decision if tree.is_leaf else _predict_tree_nav(tree, row)
+        for tree in forest_trees
+    ]
+    votes = [v for v in votes if v is not None]
+    if not votes:
+      return fallback_dec
+    vals, c_counts = np.unique(votes, return_counts=True)
+    return vals[np.argmax(c_counts)]
+
+  y_pred_trees = X_test.apply(predict_forest_wrapper, axis=1).tolist()
+  y_pred_rules = X_test.apply(
+      lambda row: _predict_by_rules(row, algo_a_rules, fallback_dec),
+      axis=1,
+  ).tolist()
+
+  t_metrics = _evaluate_predictions(y_test, y_pred_trees, is_gd_mode)
+  r_metrics = _evaluate_predictions(y_test, y_pred_rules, is_gd_mode)
+  return t_metrics, r_metrics
+
+
+def run_full_research_experiment(
+    df_base,
+    targetAttr,
+    attrToRemove,
+    maxDepth=10,
+    splitRatio=70,
+    entropyThreshold=0.75,
+):
+  df_base = df_base.copy()
+  df_base.columns = [c.strip() for c in df_base.columns]
+  targetAttr = targetAttr.strip()
+
+  if isinstance(attrToRemove, str):
+    attr_list = [a.strip() for a in attrToRemove.split(",") if a.strip()]
+    attr_param = attr_list if len(attr_list) > 1 else attr_list[0]
+  else:
+    attr_list = list(attrToRemove)
+    attr_param = attrToRemove
+
+  df_base = df_base[
+      df_base[targetAttr].astype(str).str.strip().str.lower() != "c"
+  ].copy()
+  df_base = df_base.apply(
+      lambda x: x.str.strip() if x.dtype == "object" else x
+  ).dropna()
+
+  cols_to_drop = [
+      c for c in attr_list if c in df_base.columns and c != targetAttr
+  ]
+
+  datasets_full = run_inconsistency_data_generation(
+      df_base, targetAttr, attr_param, entropy_threshold=entropyThreshold
+  )
+  datasets_full["BASELINE"] = df_base.copy()
+
+  S_values = [10, 30, 50]
+  results_matrix = {}
+  rng = np.random.default_rng(42)
+
+  # FAZA 1: Reprezentacja wiedzy na pełnym zbiorze
+  for mode_name, df_variant in datasets_full.items():
+    if df_variant is None or df_variant.empty:
+      continue
+
+    results_matrix[mode_name] = {
+        "dataset_metadata": {
+            "rows_count": len(df_variant),
+            "cols_count": len(df_variant.columns) - 1,
+        },
+        "FAZA_1_REPREZENTACJA_WIEDZY_BEZ_PODZIALU": {},
+        "FAZA_2_KLASYFIKACJA_TRAIN_TEST_70_30": {},
+    }
+
+    X = df_variant.drop(columns=[targetAttr])
+    y = df_variant[targetAttr].astype(str)
+    feature_names = list(X.columns)
+    is_gd_mode = mode_name == "GD"
+
+    for nTrees in S_values:
+      forest_trees = []
+      for _ in range(nTrees):
+        boot_idx = rng.choice(len(X), size=len(X), replace=True)
+        n_sub = max(1, int(math.sqrt(len(feature_names))))
+        sub_feats = list(rng.choice(feature_names, size=n_sub, replace=False))
+        tree = build_id3_tree(
+            X.iloc[boot_idx], y.iloc[boot_idx].values, sub_feats, maxDepth
+        )
+        forest_trees.append(tree)
+
+      raw_rules = []
+      for t_idx, tree in enumerate(forest_trees):
+        raw_rules.extend(extract_rules_from_id3(tree, {}, t_idx))
+
+      raw_rules_valid = [r for r in raw_rules if len(r.get("conditions", [])) > 0]
+      if not raw_rules_valid:
+        raw_rules_valid = raw_rules
+
+      avg_len_raw = (
+          np.mean([max(1, len(r.get("conditions", []))) for r in raw_rules_valid])
+          if raw_rules_valid
+          else 1.0
+      )
+      sup_c_raw, sup_r_raw = _calculate_dataset_support(
+          df_variant, raw_rules_valid, targetAttr, is_gd_mode=is_gd_mode
+      )
+
+      unique_rules = {}
+      for r in raw_rules_valid:
+        r_key = (frozenset(r["_raw_conditions"].items()), str(r["decision"]))
+        if r_key not in unique_rules:
+          unique_rules[r_key] = {
+              "conditions": r["conditions"],
+              "_raw_conditions": r["_raw_conditions"],
+              "decision": r["decision"],
+              "supportCount": 0,
+          }
+        unique_rules[r_key]["supportCount"] += 1
+
+      algo_a_rules = [
+          r for r in unique_rules.values() if r["supportCount"] > 1
+      ]
+      if not algo_a_rules:
+        algo_a_rules = list(unique_rules.values())
+      algo_a_rules.sort(
+          key=lambda x: (-x["supportCount"], len(x["conditions"]))
+      )
+
+      algo_a_valid = [r for r in algo_a_rules if len(r.get("conditions", [])) > 0]
+      if not algo_a_valid:
+        algo_a_valid = algo_a_rules
+
+      avg_len_algo_a = (
+          np.mean([max(1, len(r["conditions"])) for r in algo_a_valid])
+          if algo_a_valid
+          else 1.0
+      )
+      sup_c_algo_a, sup_r_algo_a = _calculate_dataset_support(
+          df_variant, algo_a_valid, targetAttr, is_gd_mode=is_gd_mode
+      )
+
+      results_matrix[mode_name]["FAZA_1_REPREZENTACJA_WIEDZY_BEZ_PODZIALU"][
+          f"S_{nTrees}"
+      ] = {
+          "liczba_regul_lasu_losowego": len(raw_rules_valid),
+          "srednia_dlugosc_regul_lasu_losowego": round(float(avg_len_raw), 2),
+          "srednie_wsparcie_regul_wiersze_lasu_losowego": sup_c_raw,
+          "srednie_wsparcie_regul_procent_lasu_losowego": sup_r_raw,
+          "liczba_regul_algorytm_A": len(algo_a_valid),
+          "srednia_dlugosc_regul": round(float(avg_len_algo_a), 2),
+          "srednia_dlugosc_wzgledem_liczby_wierszy": round(
+              float(avg_len_algo_a / len(df_variant)), 5
+          ),
+          "srednie_wsparcie_regul_wiersze": sup_c_algo_a,
+          "srednie_wsparcie_regul_procent": sup_r_algo_a,
+          "stopien_kompresji_procent": (
+              round((1.0 - (len(algo_a_valid) / len(raw_rules_valid))) * 100, 2)
+              if raw_rules_valid
+              else 0.0
+          ),
+      }
+
+  # FAZA 2: Uczciwa klasyfikacja (podział PRZED rozwiązaniem niespójności)
+  test_size = min(0.5, max(0.1, 1.0 - (float(splitRatio) / 100.0)))
+  y_base_strat = df_base[targetAttr].astype(str)
+  _, counts = np.unique(y_base_strat, return_counts=True)
+  if len(counts) > 1 and np.min(counts) >= 2:
+    splitter = StratifiedShuffleSplit(
+        n_splits=5, test_size=test_size, random_state=42
+    )
+    splits = list(splitter.split(df_base, y_base_strat))
+  else:
+    splitter = ShuffleSplit(n_splits=5, test_size=test_size, random_state=42)
+    splits = list(splitter.split(df_base))
+
+  for nTrees in S_values:
+    metrics_store = {
+        m: {
+            "tree": {"acc": [], "prec": [], "rec": [], "f1": []},
+            "rule": {"acc": [], "prec": [], "rec": [], "f1": []},
+        }
+        for m in ["GD", "MCD", "CUSTOM", "BASELINE"]
+    }
+
+    for train_idx, test_idx in splits:
+      train_base = df_base.iloc[train_idx].copy()
+      test_base = df_base.iloc[test_idx].copy()
+
+      train_variants = run_inconsistency_data_generation(
+          train_base, targetAttr, attr_param, entropy_threshold=entropyThreshold
+      )
+      test_reduced = test_base.drop(columns=cols_to_drop).copy()
+
+      for mode_name in ["GD", "MCD", "CUSTOM"]:
+        tr_df = train_variants.get(mode_name)
+        if tr_df is None or tr_df.empty:
+          continue
+        t_m, r_m = _train_and_eval_single_split(
+            tr_df,
+            test_reduced,
+            targetAttr,
+            nTrees,
+            maxDepth,
+            is_gd_mode=(mode_name == "GD"),
+            rng=rng,
+        )
+        for idx_m, k_m in enumerate(["acc", "prec", "rec", "f1"]):
+          metrics_store[mode_name]["tree"][k_m].append(t_m[idx_m])
+          metrics_store[mode_name]["rule"][k_m].append(r_m[idx_m])
+
+      t_m, r_m = _train_and_eval_single_split(
+          train_base,
+          test_base,
+          targetAttr,
+          nTrees,
+          maxDepth,
+          is_gd_mode=False,
+          rng=rng,
+      )
+      for idx_m, k_m in enumerate(["acc", "prec", "rec", "f1"]):
+        metrics_store["BASELINE"]["tree"][k_m].append(t_m[idx_m])
+        metrics_store["BASELINE"]["rule"][k_m].append(r_m[idx_m])
+
+    for mode_name in ["GD", "MCD", "CUSTOM", "BASELINE"]:
+      if mode_name not in results_matrix:
+        continue
+      tm = metrics_store[mode_name]["tree"]
+      rm = metrics_store[mode_name]["rule"]
+      if not tm["acc"]:
+        continue
+
+      results_matrix[mode_name]["FAZA_2_KLASYFIKACJA_TRAIN_TEST_70_30"][
+          f"S_{nTrees}"
+      ] = {
+          "DRZEWA_LAS_LOSOWY_AVG_5_RUNS": {
+              "avg_accuracy": round(float(np.mean(tm["acc"])), 2),
+              "avg_precision": round(float(np.mean(tm["prec"])), 2),
+              "avg_recall": round(float(np.mean(tm["rec"])), 2),
+              "avg_f1_score": round(float(np.mean(tm["f1"])), 2),
+          },
+          "REGULY_ALGORYTM_A_AVG_5_RUNS": {
+              "avg_accuracy": round(float(np.mean(rm["acc"])), 2),
+              "avg_precision": round(float(np.mean(rm["prec"])), 2),
+              "avg_recall": round(float(np.mean(rm["rec"])), 2),
+              "avg_f1_score": round(float(np.mean(rm["f1"])), 2),
+          },
+          "porownanie_roznica_accuracy_reguly_vs_drzewa": round(
+              float(np.mean(rm["acc"]) - np.mean(tm["acc"])), 2
+          ),
+      }
+
+  attr_label = (
+      ", ".join(attr_param) if isinstance(attr_param, list) else str(attr_param)
+  )
+
+  return {
+      "status": "success",
+      "metodologia": (
+          "Pełna zgodność bez wycieku danych: Faza 1 (cały zbiór) + Faza 2"
+          f" (podział {splitRatio}/{100-int(splitRatio)} przed redukcją"
+          " konfliktów, 5 powtórzeń)"
+      ),
+      "removed_attribute": attr_label,
+      "results": results_matrix,
+  }
+
+
+========================================
+PLIK: src\scripts\xai_service.py
+========================================
+import ast
+import math
+import time
+from analytics import run_inconsistency_data_generation
+import numpy as np
+import pandas as pd
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.model_selection import ShuffleSplit, StratifiedShuffleSplit
+
+
+class ID3Node:
+
+  def __init__(
+      self, attribute=None, branches=None, is_leaf=False, decision=None
+  ):
+    self.attribute = attribute
+    self.branches = branches if branches is not None else {}
+    self.is_leaf = is_leaf
+    self.decision = decision
+
+
+def _parse_gd_set(val):
+  s = str(val).strip()
+  if s.startswith('[') and s.endswith(']'):
+    try:
+      parsed = ast.literal_eval(s)
+      if isinstance(parsed, (list, set, tuple)):
+        return {str(x).strip().lower() for x in parsed}
+    except Exception:
+      pass
+  return {s.strip('\'"').strip().lower()}
+
+
+def calculate_entropy(target_series):
+  total = len(target_series)
+  if total <= 1:
+    return 0.0
+  counts = target_series.value_counts()
+  probs = counts / total
+  return -float(np.sum(probs * np.log2(probs)))
+
+
+def calculate_information_gain(df, feature, target_attr):
+  total_entropy = calculate_entropy(df[target_attr])
+  total_rows = len(df)
+  if total_rows == 0:
+    return 0.0
+
+  subset_entropy = 0.0
+  for _, group in df.groupby(feature, dropna=False):
+    subset_entropy += (len(group) / total_rows) * calculate_entropy(
+        group[target_attr]
+    )
+  return total_entropy - subset_entropy
+
+
+def rank_attributes_by_ig(df, target_attr):
+  """Sortuje atrybuty warunkowe malejąco wg Information Gain."""
+  cond_attrs = [c for c in df.columns if c != target_attr]
+  gains = [
+      (attr, calculate_information_gain(df, attr, target_attr))
+      for attr in cond_attrs
+  ]
+  gains.sort(key=lambda x: (-x[1], x[0]))
+  return [attr for attr, _ in gains]
+
+
+def build_id3_tree(X_train, y_train, feature_names, max_depth=10, depth=0):
+  if len(y_train) == 0:
+    return ID3Node(is_leaf=True, decision='Brak')
+
+  unique_classes, counts = np.unique(y_train, return_counts=True)
+  majority_decision = unique_classes[np.argmax(counts)]
+
+  if len(unique_classes) == 1 or depth >= max_depth or not feature_names:
+    return ID3Node(is_leaf=True, decision=majority_decision)
+
+  df_local = X_train.copy()
+  df_local['_target_'] = y_train
+
+  gains = [
+      calculate_information_gain(df_local, f, '_target_') for f in feature_names
+  ]
+  best_feat_idx = int(np.argmax(gains))
+  best_feat = feature_names[best_feat_idx]
+
+  if gains[best_feat_idx] <= 1e-12:
+    return ID3Node(is_leaf=True, decision=majority_decision)
+
+  node = ID3Node(attribute=best_feat, is_leaf=False)
+  remaining_feats = [f for f in feature_names if f != best_feat]
+
+  for val, group in df_local.groupby(best_feat, dropna=False):
+    child = build_id3_tree(
+        group[remaining_feats],
+        group['_target_'].values,
+        remaining_feats,
+        max_depth=max_depth,
+        depth=depth + 1,
+    )
+    node.branches[str(val).strip()] = child
+
+  return node
+
+
+def count_tree_stats(node):
+  if node is None:
+    return 0, 0
+  if node.is_leaf:
+    return 0, 1
+
+  nodes = 1
+  leaves = 0
+  for child in node.branches.values():
+    c_nodes, c_leaves = count_tree_stats(child)
+    nodes += c_nodes
+    leaves += c_leaves
+  return nodes, leaves
+
+
+def extract_rules_from_id3(node, current_conditions=None, tree_id=0):
+  if current_conditions is None:
+    current_conditions = {}
+
+  if node.is_leaf:
+    cond_list = [
+        {'attribute': k, 'op': '=', 'val': v, 'value': v}
+        for k, v in current_conditions.items()
+    ]
+    return [{
+        'treeId': tree_id,
+        'conditions': cond_list,
+        '_raw_conditions': current_conditions.copy(),
+        'decision': node.decision,
+    }]
+
+  rules = []
+  for val, child in node.branches.items():
+    next_cond = current_conditions.copy()
+    next_cond[node.attribute] = str(val).strip()
+    rules.extend(extract_rules_from_id3(child, next_cond, tree_id))
+  return rules
+
+
+def optimize_rules_algorithm_a(raw_rules, total_trees=30, n_folds=5):
+  unique_rules = {}
+  for r in raw_rules:
+    if not r.get('conditions'):
+      continue
+    r_key = (frozenset(r['_raw_conditions'].items()), str(r['decision']))
+    if r_key not in unique_rules:
+      unique_rules[r_key] = {
+          'conditions': r['conditions'],
+          '_raw_conditions': r['_raw_conditions'],
+          'decision': r['decision'],
+          'totalHits': 0,
+      }
+    unique_rules[r_key]['totalHits'] += 1
+
+  for r in unique_rules.values():
+    r['supportCount'] = min(
+        int(total_trees), max(1, int(round(r['totalHits'] / max(1, n_folds))))
+    )
+
+  filtered = [r for r in unique_rules.values() if r['supportCount'] > 1]
+  if not filtered:
+    filtered = list(unique_rules.values())
+
+  filtered.sort(key=lambda x: (-x['supportCount'], len(x['conditions'])))
+  for idx, r in enumerate(filtered):
+    r['isBestRule'] = idx == 0
+  return filtered
+
+
+def _predict_tree_nav(node, row):
+  if node.is_leaf:
+    return node.decision
+  val = str(row.get(node.attribute)).strip()
+  if val in node.branches:
+    return _predict_tree_nav(node.branches[val], row)
+  return None
+
+
+def evaluate_pipeline(
+    forest, test_df, target_attr, fallback_dec='Brak', is_gd=False
+):
+  X_test = test_df.drop(columns=[target_attr])
+  y_test = test_df[target_attr].astype(str).values
+
+  def predict_forest(row):
+    votes = [
+        t.decision if t.is_leaf else _predict_tree_nav(t, row) for t in forest
+    ]
+    votes = [v for v in votes if v is not None and v != 'Brak']
+    if not votes:
+      return fallback_dec
+    vals, cnts = np.unique(votes, return_counts=True)
+    return vals[np.argmax(cnts)]
+
+  y_pred = X_test.apply(predict_forest, axis=1).tolist()
+
+  cleaned_true = []
+  cleaned_pred = []
+  for t, p in zip(y_test, y_pred):
+    t_set = _parse_gd_set(t)
+    p_set = _parse_gd_set(p)
+    if is_gd:
+      if p_set.issubset(t_set) or (len(t_set.intersection(p_set)) > 0):
+        v = list(t_set.intersection(p_set))[0]
+        cleaned_true.append(v)
+        cleaned_pred.append(v)
+      else:
+        cleaned_true.append(list(t_set)[0])
+        cleaned_pred.append(list(p_set)[0])
+    else:
+      cleaned_true.append(str(t).strip().lower())
+      cleaned_pred.append(str(p).strip().lower())
+
+  acc = float(accuracy_score(cleaned_true, cleaned_pred) * 100)
+  prec = float(
+      precision_score(
+          cleaned_true, cleaned_pred, average='weighted', zero_division=0
+      )
+      * 100
+  )
+  rec = float(
+      recall_score(
+          cleaned_true, cleaned_pred, average='weighted', zero_division=0
+      )
+      * 100
+  )
+  f1 = float(
+      f1_score(cleaned_true, cleaned_pred, average='weighted', zero_division=0)
+      * 100
+  )
+
+  return {
+      'Dokladnosc_Klasyfikacji': acc,
+      'precision': prec,
+      'recall': rec,
+      'f1': f1,
+  }
+
+
+def run_xai_pipeline(
+    df_base,
+    split_ratio,
+    target_attr,
+    n_trees,
+    max_depth,
+    mode='BASELINE',
+    attr_to_remove='',
+    entropy_threshold=0.75,
+):
+  """Uczciwy potok XAI:
+
+  - Dzieli dane zgodnie z suwakiem split_ratio (np. 70% train / 30% test w 5
+  losowaniach),
+  - Rozwiązuje niespójności (GD / MCD / CUSTOM) wyłącznie na zbiorze
+  treningowym,
+  - Ewaluuje na wspólnym, nieprzefiltrowanym zbiorze testowym.
+  """
+  target_attr = target_attr.strip()
+  test_size = min(0.5, max(0.1, 1.0 - (float(split_ratio) / 100.0)))
+
+  if isinstance(attr_to_remove, str):
+    cols_to_drop = [
+        a.strip()
+        for a in attr_to_remove.split(',')
+        if a.strip() in df_base.columns and a.strip() != target_attr
+    ]
+  else:
+    cols_to_drop = [
+        str(a).strip()
+        for a in attr_to_remove
+        if str(a).strip() in df_base.columns and str(a).strip() != target_attr
+    ]
+
+  y_strat = df_base[target_attr].astype(str)
+  _, counts = np.unique(y_strat, return_counts=True)
+
+  n_splits = 5
+  if len(counts) > 1 and np.min(counts) >= 2:
+    splitter = StratifiedShuffleSplit(
+        n_splits=n_splits, test_size=test_size, random_state=42
+    )
+    splits = list(splitter.split(df_base, y_strat))
+  else:
+    splitter = ShuffleSplit(
+        n_splits=n_splits, test_size=test_size, random_state=42
+    )
+    splits = list(splitter.split(df_base))
+
+  rng = np.random.default_rng(42)
+  accs, f1s, times = [], [], []
+  total_nodes, total_leaves = [], []
+  raw_rules_all = []
+
+  for train_idx, test_idx in splits:
+    start_t = time.time()
+    train_raw = df_base.iloc[train_idx].copy()
+    test_raw = df_base.iloc[test_idx].copy()
+
+    if mode == 'BASELINE':
+      train_df = train_raw
+      test_df = test_raw
+    else:
+      variants = run_inconsistency_data_generation(
+          train_raw,
+          target_attr,
+          cols_to_drop,
+          entropy_threshold=entropy_threshold,
+      )
+      train_df = variants.get(mode)
+      test_df = test_raw.drop(columns=cols_to_drop).copy()
+
+    if train_df is None or train_df.empty:
+      continue
+
+    X_tr = train_df.drop(columns=[target_attr])
+    y_tr = train_df[target_attr].astype(str).values
+    feature_names = list(X_tr.columns)
+    n_sub = max(1, int(math.sqrt(len(feature_names))))
+
+    u_cls, u_cnts = np.unique(y_tr, return_counts=True)
+    fallback_dec = u_cls[np.argmax(u_cnts)] if len(u_cls) > 0 else 'Brak'
+
+    forest = []
+    for t_i in range(int(n_trees)):
+      boot_idx = rng.choice(len(X_tr), size=len(X_tr), replace=True)
+      sub_feats = list(rng.choice(feature_names, size=n_sub, replace=False))
+      t = build_id3_tree(
+          X_tr.iloc[boot_idx], y_tr[boot_idx], sub_feats, max_depth=int(max_depth)
+      )
+      forest.append(t)
+      raw_rules_all.extend(extract_rules_from_id3(t, {}, t_i))
+
+      nodes, leaves = count_tree_stats(t)
+      total_nodes.append(nodes)
+      total_leaves.append(leaves)
+
+    eval_res = evaluate_pipeline(
+        forest,
+        test_df,
+        target_attr,
+        fallback_dec=fallback_dec,
+        is_gd=(mode == 'GD'),
+    )
+    accs.append(eval_res['Dokladnosc_Klasyfikacji'])
+    f1s.append(eval_res['f1'])
+    times.append(time.time() - start_t)
+
+  optimized_rules = optimize_rules_algorithm_a(
+      raw_rules_all, total_trees=int(n_trees), n_folds=n_splits
+  )
+
+  dokladnosc = round(float(np.mean(accs)), 2) if accs else 0.0
+  dokladnosc_odchylenie = round(float(np.std(accs)), 2) if accs else 0.0
+  f1_mean = round(float(np.mean(f1s)), 2) if f1s else 0.0
+  czas_sr = round(float(np.mean(times)), 3) if times else 0.0
+  czas_odch = round(float(np.std(times)), 3) if times else 0.0
+
+  return {
+      'Dokladnosc_Klasyfikacji': dokladnosc,
+      'Dokladnosc_Odchylenie': dokladnosc_odchylenie,
+      'f1': f1_mean,
+      'Czas_Sredni': czas_sr,
+      'Czas_Odchylenie': czas_odch,
+      'evalStats': {
+          'Dokladnosc_Klasyfikacji': dokladnosc,
+          'Dokladnosc_Odchylenie': dokladnosc_odchylenie,
+          'f1': f1_mean,
+          'Czas_Sredni': czas_sr,
+          'Czas_Odchylenie': czas_odch,
+      },
+      'Struktura_Bazowa': {
+          'Liczba_Drzew': int(n_trees),
+          'Srednia_Glebokosc': int(max_depth),
+          'Liczba_Wezlow': int(np.mean(total_nodes)) if total_nodes else 0,
+          'Liczba_Lisci': int(np.mean(total_leaves)) if total_leaves else 0,
+      },
+      'Optymalizacja_Regul': {
+          'Liczba_Regul_Przed': len(raw_rules_all) // max(1, n_splits),
+          'Liczba_Regul_Po': len(optimized_rules),
+      },
+      'Reguly_Globalne': optimized_rules,
+  }
+
+
+========================================
+PLIK: src\utils\helpers.js
+========================================
+export function int(val) {
+  return parseInt(val, 10) || 0;
+}
+
+export const generateRuleSentence = (conditions, decision) => {
+  const translatedConditions = conditions.map(cond => {
+    let textOp = "";
+    switch (cond.op) {
+      case "=": textOp = "wynosi"; break;
+      case "<=": textOp = "nie przekracza"; break;
+      case ">": textOp = "jest większe niż"; break;
+      case "IN": textOp = "przyjmuje jedną z wartości"; break;
+      case "∈": textOp = "mieści się w przedziale"; break;
+      default: textOp = cond.op;
+    }
+    return `atrybut [${cond.attribute}] ${textOp} ${cond.val}`;
+  });
+  return `Jeśli ${translatedConditions.join(' oraz ')}, to system przewiduje klasę: "${decision}".`;
+};
+
+
